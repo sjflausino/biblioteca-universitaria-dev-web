@@ -25,11 +25,38 @@
             <table border="1" width="100%">
                 <tr>
                     <th>Título do Livro</th>
+                    <th>Autor</th>
                     <th>Total de Empréstimos</th>
                 </tr>
                 <c:forEach var="item" items="${topLivros}">
                     <tr>
                         <td>${item.titulo}</td>
+                        <td>${item.autor}</td>
+                        <td>${item.total}</td>
+                    </tr>
+                </c:forEach>
+            </table>
+        </c:otherwise>
+    </c:choose>
+
+    <hr>
+
+    <h3>Usuários Mais Ativos (Mais Empréstimos)</h3>
+    <c:choose>
+        <c:when test="${empty topUsuarios}">
+            <p>Nenhum usuário realizou empréstimos ainda.</p>
+        </c:when>
+        <c:otherwise>
+            <table border="1" width="100%">
+                <tr>
+                    <th>Matrícula</th>
+                    <th>Nome do Usuário</th>
+                    <th>Total de Empréstimos</th>
+                </tr>
+                <c:forEach var="item" items="${topUsuarios}">
+                    <tr>
+                        <td>${item.matricula}</td>
+                        <td>${item.nome}</td>
                         <td>${item.total}</td>
                     </tr>
                 </c:forEach>
@@ -47,18 +74,26 @@
         <c:otherwise>
             <table border="1" width="100%">
                 <tr>
+                    <th>Matrícula</th>
                     <th>Nome do Usuário</th>
-                    <th>Email</th>
                     <th>Livro Pendente</th>
                     <th>Data Prevista</th>
+                    <th>Dias de Atraso</th>
+                    <th>Multa Estimada (R$)</th>
                 </tr>
                 <c:forEach var="item" items="${listaAtrasos}">
                     <tr>
+                        <td>${item.matricula}</td>
                         <td>${item.usuario}</td>
-                        <td>${item.email}</td>
                         <td>${item.livro}</td>
                         <td style="color: red;">
                             <fmt:formatDate value="${item.dataPrevista}" pattern="dd/MM/yyyy"/>
+                        </td>
+                        <td style="font-weight: bold; color: red;">
+                            ${item.diasAtraso} dias
+                        </td>
+                        <td>
+                            R$ <fmt:formatNumber value="${item.multaEstimada}" minFractionDigits="2"/>
                         </td>
                     </tr>
                 </c:forEach>

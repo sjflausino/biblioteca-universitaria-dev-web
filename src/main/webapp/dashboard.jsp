@@ -17,9 +17,12 @@
             <li><a href="livros">Acervo de Livros (Empréstimos)</a></li>
             <li><a href="emprestimos">Meus Empréstimos / Devoluções</a></li>
             
-            <%-- Apenas admin vê relatórios --%>
             <c:if test="${sessionScope.usuarioLogado.tipo == 'admin'}">
+                <hr>
+                <li><strong>Área Administrativa:</strong></li>
+                <li><a href="gerenciarEmprestimos">Gerenciar Empréstimos (Devoluções)</a></li>
                 <li><a href="relatorios">Relatórios Administrativos</a></li>
+                <hr>
             </c:if>
             
             <li><a href="login?acao=logout">Sair</a></li>

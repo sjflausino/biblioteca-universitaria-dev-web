@@ -56,6 +56,7 @@ public class EmprestimoServlet extends HttpServlet {
                     emp.setMulta(rs.getDouble("multa"));
 
                     Livro l = new Livro();
+                    l.setId(rs.getInt("livro_id")); 
                     l.setTitulo(rs.getString("titulo"));
                     l.setAutor(rs.getString("autor"));
                     emp.setLivro(l);
@@ -112,7 +113,19 @@ public class EmprestimoServlet extends HttpServlet {
                 return;
             }
 
-            // --- TRANSAÇÃO ---
+            String sqlDuplicado = "SELECT COUNT(*) FROM emprestimo WHERE usuario_id = ? AND livro_id = ? AND data_devolucao_real IS NULL";
+            
+            try (PreparedStatement stmtDup = conn.prepareStatement(sqlDuplicado)) {
+                stmtDup.setInt(1, usuario.getId());
+                stmtDup.setInt(2, livroId);
+                try (ResultSet rsDup = stmtDup.executeQuery()) {
+                    if (rsDup.next() && rsDup.getInt(1) > 0) {
+                        response.sendRedirect("livros?erro=LivroJaComUsuario");
+                        return;
+                    }
+                }
+            }
+
             conn.setAutoCommit(false);
             try {
                 boolean disponivel = false;

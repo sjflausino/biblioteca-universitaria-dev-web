@@ -55,7 +55,6 @@ public class LivrosServlet extends HttpServlet {
             throws ServletException, IOException {
 
         String titulo = request.getParameter("titulo");
-        // Validação simples: se título for nulo, redireciona (evita erro 500)
         if (titulo == null || titulo.trim().isEmpty()) {
              response.sendRedirect("livros?erro=DadosInvalidos");
              return;
@@ -69,7 +68,7 @@ public class LivrosServlet extends HttpServlet {
         try {
             qtd = Integer.parseInt(request.getParameter("quantidade"));
         } catch (NumberFormatException e) {
-            qtd = 1; // Valor padrão
+            qtd = 1; 
         }
 
         try (Connection conn = DriverManager.getConnection(URL, USUARIO, SENHA)) {
