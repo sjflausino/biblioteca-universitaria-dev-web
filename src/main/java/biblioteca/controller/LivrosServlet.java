@@ -27,20 +27,42 @@ public class LivrosServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        List<Livro> lista = new ArrayList<>();
-        try (Connection conn = DriverManager.getConnection(URL, USUARIO, SENHA); 
-             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM livro"); 
-             ResultSet rs = stmt.executeQuery()) {
+        String busca = request.getParameter("busca");
+        String tipo = request.getParameter("tipo");
 
-            while (rs.next()) {
-                Livro livro = new Livro();
-                livro.setId(rs.getInt("id"));
-                livro.setTitulo(rs.getString("titulo"));
-                livro.setAutor(rs.getString("autor"));
-                livro.setEditora(rs.getString("editora"));
-                livro.setIsbn(rs.getString("isbn"));
-                livro.setQuantidadeDisponivel(rs.getInt("quantidade_disponivel"));
-                lista.add(livro);
+        List<Livro> lista = new ArrayList<>();
+        
+        StringBuilder sql = new StringBuilder("SELECT * FROM livro");
+        boolean temFiltro = (busca != null && !busca.trim().isEmpty());
+
+        if (temFiltro) {
+            if ("isbn".equals(tipo)) {
+                sql.append(" WHERE isbn LIKE ?");
+            } else if ("autor".equals(tipo)) {
+                sql.append(" WHERE LOWER(autor) LIKE ?");
+            } else {
+                sql.append(" WHERE LOWER(titulo) LIKE ?");
+            }
+        }
+
+        try (Connection conn = DriverManager.getConnection(URL, USUARIO, SENHA); 
+            PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+
+            if (temFiltro) {
+                stmt.setString(1, "%" + busca.toLowerCase() + "%");
+            }
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Livro livro = new Livro();
+                    livro.setId(rs.getInt("id"));
+                    livro.setTitulo(rs.getString("titulo"));
+                    livro.setAutor(rs.getString("autor"));
+                    livro.setEditora(rs.getString("editora"));
+                    livro.setIsbn(rs.getString("isbn"));
+                    livro.setQuantidadeDisponivel(rs.getInt("quantidade_disponivel"));
+                    lista.add(livro);
+                }
             }
         } catch (SQLException e) {
             throw new ServletException("Erro ao listar livros", e);

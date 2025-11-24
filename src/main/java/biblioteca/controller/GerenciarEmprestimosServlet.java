@@ -42,7 +42,6 @@ public class GerenciarEmprestimosServlet extends HttpServlet {
         String filtroNome = request.getParameter("buscaNome");
         String filtroMatricula = request.getParameter("buscaMatricula");
         String filtroLivro = request.getParameter("buscaLivro");
-
         List<Map<String, Object>> listaResultados = new ArrayList<>();
 
         StringBuilder sql = new StringBuilder();
@@ -54,7 +53,6 @@ public class GerenciarEmprestimosServlet extends HttpServlet {
         sql.append("WHERE e.data_devolucao_real IS NULL ");
 
         List<Object> parametros = new ArrayList<>();
-
         if (filtroNome != null && !filtroNome.trim().isEmpty()) {
             sql.append("AND LOWER(u.nome) LIKE ? ");
             parametros.add("%" + filtroNome.toLowerCase() + "%");
@@ -79,7 +77,6 @@ public class GerenciarEmprestimosServlet extends HttpServlet {
 
             try (ResultSet rs = stmt.executeQuery()) {
                 LocalDate hoje = LocalDate.now();
-                
                 while (rs.next()) {
                     Map<String, Object> linha = new HashMap<>();
                     linha.put("empId", rs.getInt("emp_id"));
@@ -87,11 +84,9 @@ public class GerenciarEmprestimosServlet extends HttpServlet {
                     linha.put("nome", rs.getString("nome"));
                     linha.put("matricula", rs.getString("matricula"));
                     linha.put("titulo", rs.getString("titulo"));
+                    linha.put("dataEmp", rs.getDate("data_emprestimo"));
                     
-                    java.sql.Date dataEmp = rs.getDate("data_emprestimo");
                     java.sql.Date dataPrev = rs.getDate("data_prevista_devolucao");
-                    
-                    linha.put("dataEmp", dataEmp);
                     linha.put("dataPrev", dataPrev);
 
                     double multaEstimada = 0.0;
@@ -103,7 +98,6 @@ public class GerenciarEmprestimosServlet extends HttpServlet {
                         }
                     }
                     linha.put("multaEstimada", multaEstimada);
-
                     listaResultados.add(linha);
                 }
             }
@@ -113,5 +107,101 @@ public class GerenciarEmprestimosServlet extends HttpServlet {
 
         request.setAttribute("listaAtivos", listaResultados);
         request.getRequestDispatcher("admin_emprestimos.jsp").forward(request, response);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        HttpSession session = request.getSession(false);
+        Usuario admin = (session != null) ? (Usuario) session.getAttribute("usuarioLogado") : null;
+        
+        if (admin == null || !"admin".equals(admin.getTipo())) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Acesso negado.");
+            return;
+        }
+
+        String matriculaAluno = request.getParameter("matriculaAluno");
+        String livroIdStr = request.getParameter("livroId");
+
+        if (matriculaAluno == null || livroIdStr == null || matriculaAluno.isEmpty() || livroIdStr.isEmpty()) {
+            response.sendRedirect("gerenciarEmprestimos?erro=DadosIncompletos");
+            return;
+        }
+
+        int livroId = Integer.parseInt(livroIdStr);
+
+        try (Connection conn = DriverManager.getConnection(URL, USUARIO_DB, SENHA_DB)) {
+            
+            int alunoId = -1;
+            String sqlAluno = "SELECT id FROM usuario WHERE matricula = ?";
+            try (PreparedStatement stmtAlu = conn.prepareStatement(sqlAluno)) {
+                stmtAlu.setString(1, matriculaAluno);
+                try (ResultSet rsAlu = stmtAlu.executeQuery()) {
+                    if (rsAlu.next()) {
+                        alunoId = rsAlu.getInt("id");
+                    } else {
+                        response.sendRedirect("gerenciarEmprestimos?erro=AlunoNaoEncontrado");
+                        return;
+                    }
+                }
+            }
+
+            String sqlBloqueio = "SELECT COUNT(*) FROM emprestimo WHERE usuario_id = ? AND (multa > 0 OR (data_devolucao_real IS NULL AND data_prevista_devolucao < CURRENT_DATE))";
+            try (PreparedStatement stmtCheck = conn.prepareStatement(sqlBloqueio)) {
+                stmtCheck.setInt(1, alunoId);
+                try (ResultSet rs = stmtCheck.executeQuery()) {
+                    if (rs.next() && rs.getInt(1) > 0) {
+                        response.sendRedirect("gerenciarEmprestimos?erro=AlunoBloqueado");
+                        return;
+                    }
+                }
+            }
+
+            conn.setAutoCommit(false);
+            try {
+                boolean disponivel = false;
+                try (PreparedStatement stmtLivro = conn.prepareStatement("SELECT quantidade_disponivel FROM livro WHERE id = ?")) {
+                    stmtLivro.setInt(1, livroId);
+                    try (ResultSet rs = stmtLivro.executeQuery()) {
+                        if (rs.next() && rs.getInt(1) > 0) {
+                            disponivel = true;
+                        }
+                    }
+                }
+
+                if (!disponivel) {
+                    throw new SQLException("Livro indisponível ou inexistente.");
+                }
+
+                LocalDate hoje = LocalDate.now();
+                LocalDate devolucao = hoje.plusDays(7);
+
+                String sqlInsert = "INSERT INTO emprestimo (usuario_id, livro_id, data_emprestimo, data_prevista_devolucao) VALUES (?, ?, ?, ?)";
+                try (PreparedStatement stmtIns = conn.prepareStatement(sqlInsert)) {
+                    stmtIns.setInt(1, alunoId);
+                    stmtIns.setInt(2, livroId);
+                    stmtIns.setDate(3, java.sql.Date.valueOf(hoje));
+                    stmtIns.setDate(4, java.sql.Date.valueOf(devolucao));
+                    stmtIns.executeUpdate();
+                }
+
+                try (PreparedStatement stmtUpd = conn.prepareStatement("UPDATE livro SET quantidade_disponivel = quantidade_disponivel - 1 WHERE id = ?")) {
+                    stmtUpd.setInt(1, livroId);
+                    stmtUpd.executeUpdate();
+                }
+
+                conn.commit();
+                response.sendRedirect("gerenciarEmprestimos?msg=Sucesso");
+
+            } catch (SQLException e) {
+                conn.rollback();
+                response.sendRedirect("gerenciarEmprestimos?erro=ErroTransacao");
+                e.printStackTrace();
+            }
+
+        } catch (SQLException e) {
+            throw new ServletException("Erro no banco de dados", e);
+        }
     }
 }

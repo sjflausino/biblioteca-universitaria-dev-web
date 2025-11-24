@@ -14,7 +14,25 @@
 </head>
 <body>
     <a href="dashboard.jsp">Voltar ao Painel</a>
-    <h1>Gerenciar Empréstimos Ativos</h1>
+    <h1>Gerenciar Empréstimos</h1>
+
+    <c:if test="${param.erro == 'AlunoNaoEncontrado'}"><h3 style="color:red">Erro: Matrícula não encontrada.</h3></c:if>
+    <c:if test="${param.erro == 'AlunoBloqueado'}"><h3 style="color:red">Erro: Aluno possui pendências ou atrasos.</h3></c:if>
+    <c:if test="${param.msg == 'Sucesso'}"><h3 style="color:green">Empréstimo realizado com sucesso!</h3></c:if>
+
+    <fieldset style="background-color: #f9f9f9;">
+        <legend><strong>Novo Empréstimo (Exclusivo Admin)</strong></legend>
+        <form action="gerenciarEmprestimos" method="POST">
+            <label>Matrícula do Aluno:</label>
+            <input type="text" name="matriculaAluno" required placeholder="Ex: 2025001">
+            
+            <label>ID do Livro:</label>
+            <input type="number" name="livroId" required placeholder="ID do Livro">
+            
+            <input type="submit" value="Registrar Empréstimo">
+        </form>
+    </fieldset>
+    <br>
 
     <fieldset>
         <legend>Filtrar Empréstimos</legend>
@@ -52,15 +70,12 @@
                     <td>${emp.titulo}</td>
                     <td><fmt:formatDate value="${emp.dataEmp}" pattern="dd/MM/yyyy"/></td>
                     
-                    <%-- Data Prevista (destaque se atrasado) --%>
                     <td style="${atrasado ? 'color:red; font-weight:bold;' : ''}">
                         <fmt:formatDate value="${emp.dataPrev}" pattern="dd/MM/yyyy"/>
                     </td>
 
-                    <%-- Data Devolução (Sempre Pendente aqui) --%>
                     <td style="color: orange;">Pendente</td>
 
-                    <%-- Multa Estimada --%>
                     <td>
                         <c:if test="${emp.multaEstimada > 0}">
                             <span style="color:red">R$ ${emp.multaEstimada}</span>
