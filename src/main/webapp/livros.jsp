@@ -16,21 +16,23 @@
     <h2>Acervo</h2>
 
     <%-- Tratamento de erros --%>
-    <c:if test="${not empty erro}">
-        <h3 style="color:red">${erro}</h3>
-    </c:if>
-    <c:if test="${param.erro == 'LivroJaComUsuario'}">
-        <h3 style="color:red">Você já possui um exemplar deste livro pendente de devolução!</h3>
-    </c:if>
-    <c:if test="${param.erro == 'Bloqueado'}">
-        <h3 style="color:red">Empréstimo negado: Pendências financeiras ou livros em atraso.</h3>
-    </c:if>
-    <c:if test="${param.erro == 'DadosInvalidos'}">
-        <h3 style="color:red">Dados inválidos para a operação.</h3>
-    </c:if>
-    <c:if test="${param.erro == 'LivroNaoInformado'}">
-        <h3 style="color:red">Erro: Nenhum livro selecionado.</h3>
-    </c:if>
+    <c:choose>
+        <c:when test="${not empty erro}">
+            <h3 style="color:red">${erro}</h3>
+        </c:when>
+        <c:when test="${param.erro == 'LivroJaComUsuario'}">
+            <h3 style="color:red">Você já possui um exemplar deste livro pendente de devolução!</h3>
+        </c:when>
+        <c:when test="${param.erro == 'Bloqueado'}">
+            <h3 style="color:red">Empréstimo negado: Pendências financeiras ou livros em atraso.</h3>
+        </c:when>
+        <c:when test="${param.erro == 'DadosInvalidos'}">
+            <h3 style="color:red">Dados inválidos para a operação.</h3>
+        </c:when>
+        <c:when test="${param.erro == 'LivroNaoInformado'}">
+            <h3 style="color:red">Erro: Nenhum livro selecionado.</h3>
+        </c:when>
+    </c:choose>
 
     <c:if test="${sessionScope.usuarioLogado.tipo == 'admin'}">
         <fieldset style="background-color: #fff8dc;"> <legend>Cadastrar Novo Livro</legend>

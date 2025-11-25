@@ -1,6 +1,5 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="jakarta.tags.core" %>
-<%@taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 
 <%-- Segurança na View --%>
 <c:if test="${empty sessionScope.usuarioLogado or sessionScope.usuarioLogado.tipo != 'admin'}">
@@ -62,25 +61,28 @@
         </thead>
         <tbody>
             <c:forEach var="emp" items="${listaAtivos}">
-                <c:set var="atrasado" value="${emp.multaEstimada > 0}" />
-                
                 <tr>
                     <td>${emp.matricula}</td>
                     <td>${emp.nome}</td>
                     <td>${emp.titulo}</td>
-                    <td><fmt:formatDate value="${emp.dataEmp}" pattern="dd/MM/yyyy"/></td>
-                    
-                    <td style="${atrasado ? 'color:red; font-weight:bold;' : ''}">
-                        <fmt:formatDate value="${emp.dataPrev}" pattern="dd/MM/yyyy"/>
-                    </td>
+                    <td>${emp.dataEmp}</td>
+
+                    <c:choose>
+                        <c:when test="${emp.multaEstimadaNum > 0}">
+                            <td style="color:red; font-weight:bold;">${emp.dataPrev}</td>
+                        </c:when>
+                        <c:otherwise>
+                            <td>${emp.dataPrev}</td>
+                        </c:otherwise>
+                    </c:choose>
 
                     <td style="color: orange;">Pendente</td>
 
                     <td>
-                        <c:if test="${emp.multaEstimada > 0}">
+                        <c:if test="${emp.multaEstimadaNum > 0}">
                             <span style="color:red">R$ ${emp.multaEstimada}</span>
                         </c:if>
-                        <c:if test="${emp.multaEstimada == 0}">-</c:if>
+                        <c:if test="${emp.multaEstimadaNum == 0}">-</c:if>
                     </td>
 
                     <td>

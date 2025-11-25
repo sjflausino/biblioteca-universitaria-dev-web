@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -77,6 +78,8 @@ public class GerenciarEmprestimosServlet extends HttpServlet {
 
             try (ResultSet rs = stmt.executeQuery()) {
                 LocalDate hoje = LocalDate.now();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
                 while (rs.next()) {
                     Map<String, Object> linha = new HashMap<>();
                     linha.put("empId", rs.getInt("emp_id"));
@@ -84,10 +87,12 @@ public class GerenciarEmprestimosServlet extends HttpServlet {
                     linha.put("nome", rs.getString("nome"));
                     linha.put("matricula", rs.getString("matricula"));
                     linha.put("titulo", rs.getString("titulo"));
-                    linha.put("dataEmp", rs.getDate("data_emprestimo"));
-                    
+
+                    java.sql.Date dataEmp = rs.getDate("data_emprestimo");
+                    linha.put("dataEmp", dataEmp != null ? dataEmp.toLocalDate().format(formatter) : "");
+
                     java.sql.Date dataPrev = rs.getDate("data_prevista_devolucao");
-                    linha.put("dataPrev", dataPrev);
+                    linha.put("dataPrev", dataPrev != null ? dataPrev.toLocalDate().format(formatter) : "");
 
                     double multaEstimada = 0.0;
                     if (dataPrev != null) {
@@ -97,7 +102,8 @@ public class GerenciarEmprestimosServlet extends HttpServlet {
                             multaEstimada = dias * 2.0;
                         }
                     }
-                    linha.put("multaEstimada", multaEstimada);
+                    linha.put("multaEstimada", String.format("%.2f", multaEstimada));
+                    linha.put("multaEstimadaNum", multaEstimada);
                     listaResultados.add(linha);
                 }
             }
