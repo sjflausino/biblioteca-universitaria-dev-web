@@ -8,6 +8,9 @@
 <body>
     <a href="dashboard.jsp">Voltar</a>
     <h2>Histórico de Empréstimos</h2>
+    
+    <c:if test="${param.msg == 'DevolucaoSucesso'}"><h3 style="color:green">Livro devolvido com sucesso!</h3></c:if>
+    <c:if test="${param.msg == 'MultaPaga'}"><h3 style="color:green">Pagamento da multa registrado!</h3></c:if>
 
     <table border="1" width="100%">
         <tr>
@@ -40,16 +43,19 @@
                     <c:if test="${emp.multa == 0}">-</c:if>
                 </td>
                 <td>
+                    <%-- Formulário DEVOLVER --%>
                     <c:if test="${empty emp.dataDevolucaoReal}">
-                        <form action="devolucao" method="POST">
-                            <input type="hidden" name="emprestimoId" value="${emp.id}">
-                            <input type="hidden" name="livroId" value="${emp.livro.id}"> <input type="submit" value="Devolver Livro">
+                        <form action="emprestimos" method="POST">
+                            <input type="hidden" name="acao" value="devolver"> <input type="hidden" name="emprestimoId" value="${emp.id}">
+                            <input type="hidden" name="livroId" value="${emp.livro.id}"> 
+                            <input type="submit" value="Devolver Livro">
                         </form>
                     </c:if>
                     
+                    <%-- Formulário PAGAR MULTA --%>
                     <c:if test="${not empty emp.dataDevolucaoReal and emp.multa > 0}">
-                        <form action="pagarMulta" method="POST">
-                            <input type="hidden" name="emprestimoId" value="${emp.id}">
+                        <form action="emprestimos" method="POST">
+                            <input type="hidden" name="acao" value="pagarMulta"> <input type="hidden" name="emprestimoId" value="${emp.id}">
                             <input type="submit" value="Pagar Multa">
                         </form>
                     </c:if>

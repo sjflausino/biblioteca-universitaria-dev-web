@@ -18,12 +18,13 @@
 
     <c:if test="${param.erro == 'AlunoNaoEncontrado'}"><h3 style="color:red">Erro: Matrícula não encontrada.</h3></c:if>
     <c:if test="${param.erro == 'AlunoBloqueado'}"><h3 style="color:red">Erro: Aluno possui pendências ou atrasos.</h3></c:if>
-    <c:if test="${param.msg == 'Sucesso'}"><h3 style="color:green">Empréstimo realizado com sucesso!</h3></c:if>
+    <c:if test="${param.msg == 'Sucesso' or param.msg == 'EmprestimoSucesso'}"><h3 style="color:green">Empréstimo realizado com sucesso!</h3></c:if>
+    <c:if test="${param.msg == 'DevolucaoSucesso'}"><h3 style="color:green">Devolução registrada com sucesso!</h3></c:if>
 
     <fieldset style="background-color: #f9f9f9;">
         <legend><strong>Novo Empréstimo (Exclusivo Admin)</strong></legend>
-        <form action="gerenciarEmprestimos" method="POST">
-            <label>Matrícula do Aluno:</label>
+        <form action="emprestimos" method="POST">
+            <input type="hidden" name="acao" value="adminEmprestar"> <label>Matrícula do Aluno:</label>
             <input type="text" name="matriculaAluno" required placeholder="Ex: 2025001">
             
             <label>ID do Livro:</label>
@@ -36,12 +37,12 @@
 
     <fieldset>
         <legend>Filtrar Empréstimos</legend>
-        <form action="gerenciarEmprestimos" method="GET">
-            Aluno: <input type="text" name="buscaNome" value="${param.buscaNome}">
+        <form action="emprestimos" method="GET">
+            <input type="hidden" name="acao" value="gerenciar"> Aluno: <input type="text" name="buscaNome" value="${param.buscaNome}">
             Matrícula: <input type="text" name="buscaMatricula" value="${param.buscaMatricula}">
             Livro: <input type="text" name="buscaLivro" value="${param.buscaLivro}">
             <input type="submit" value="Filtrar">
-            <a href="gerenciarEmprestimos"><input type="button" value="Limpar"></a>
+            <a href="emprestimos?acao=gerenciar"><input type="button" value="Limpar"></a>
         </form>
     </fieldset>
 
@@ -84,10 +85,11 @@
                     </td>
 
                     <td>
-                        <form action="devolucao" method="POST" onsubmit="return confirm('Confirmar a devolução de ${emp.titulo} para ${emp.nome}?');">
-                            <input type="hidden" name="emprestimoId" value="${emp.empId}">
+                        <%-- Botão de Devolução do Admin --%>
+                        <form action="emprestimos" method="POST" onsubmit="return confirm('Confirmar a devolução de ${emp.titulo} para ${emp.nome}?');">
+                            <input type="hidden" name="acao" value="devolver"> <input type="hidden" name="emprestimoId" value="${emp.empId}">
                             <input type="hidden" name="livroId" value="${emp.livroId}">
-                            <input type="submit" value="Atestar Devolução">
+                            <input type="hidden" name="origem" value="admin"> <input type="submit" value="Atestar Devolução">
                         </form>
                     </td>
                 </tr>
@@ -97,6 +99,5 @@
             </c:if>
         </tbody>
     </table>
-
 </body>
 </html>

@@ -22,23 +22,25 @@
             <div class="erro">${erro}</div>
         </c:if>
 
-        <form action="cadastroUsuario" method="POST">
+        <form action="usuario" method="POST">
+            <input type="hidden" name="acao" value="cadastrar">
+
             <label>Nome Completo:</label>
-            <input type="text" name="nome" required>
+            <input type="text" name="nome" value="${param.nome}" required>
 
             <label>Email:</label>
-            <input type="email" name="email" required>
+            <input type="email" name="email" value="${param.email}" required>
 
             <label>Matrícula:</label>
-            <input type="text" name="matricula" required>
+            <input type="text" name="matricula" value="${param.matricula}" required>
 
             <label>Senha:</label>
             <input type="password" name="senha" required>
 
             <label>Tipo de Usuário:</label>
             <select name="tipo">
-                <option value="aluno">Aluno</option>
-                <option value="admin">Administrador</option>
+                <option value="aluno" ${param.tipo == 'aluno' ? 'selected' : ''}>Aluno</option>
+                <option value="admin" ${param.tipo == 'admin' ? 'selected' : ''}>Administrador</option>
             </select>
 
             <input type="submit" value="Cadastrar">
