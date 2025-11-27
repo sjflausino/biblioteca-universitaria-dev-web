@@ -15,26 +15,25 @@
     <a href="dashboard.jsp">Voltar</a>
     <h2>Acervo</h2>
 
-    <%-- Tratamento de mensagens e erros --%>
-    <c:if test="${not empty erro}">
-        <h3 style="color:red">${erro}</h3>
-    </c:if>
-    <c:if test="${param.erro == 'LivroJaComUsuario'}">
-        <h3 style="color:red">Você já possui um exemplar deste livro pendente de devolução!</h3>
-    </c:if>
-    <c:if test="${param.erro == 'Bloqueado'}">
-        <h3 style="color:red">Empréstimo negado: Pendências financeiras ou livros em atraso.</h3>
-    </c:if>
-    <c:if test="${param.msg == 'EmprestimoSucesso'}">
-        <h3 style="color:green; background-color: #dff0d8; padding: 10px; border: 1px solid green;">Livro emprestado com sucesso! Verifique em "Meus Empréstimos".</h3>
-    </c:if>
-    <c:if test="${param.erro == 'LivroComHistorico'}">
-        <h3 style="color:red; background-color: #ffe6e6; padding: 10px; border: 1px solid red;">
-            Não é possível excluir este livro pois ele possui histórico de empréstimos.
-        </h3>
-    </c:if>
-    
-    <%-- Formulário de Cadastro (Apenas Admin) - Mantido via LivrosServlet --%>
+    <%-- Tratamento de erros --%>
+    <c:choose>
+        <c:when test="${not empty erro}">
+            <h3 style="color:red">${erro}</h3>
+        </c:when>
+        <c:when test="${param.erro == 'LivroJaComUsuario'}">
+            <h3 style="color:red">Você já possui um exemplar deste livro pendente de devolução!</h3>
+        </c:when>
+        <c:when test="${param.erro == 'Bloqueado'}">
+            <h3 style="color:red">Empréstimo negado: Pendências financeiras ou livros em atraso.</h3>
+        </c:when>
+        <c:when test="${param.erro == 'DadosInvalidos'}">
+            <h3 style="color:red">Dados inválidos para a operação.</h3>
+        </c:when>
+        <c:when test="${param.erro == 'LivroNaoInformado'}">
+            <h3 style="color:red">Erro: Nenhum livro selecionado.</h3>
+        </c:when>
+    </c:choose>
+
     <c:if test="${sessionScope.usuarioLogado.tipo == 'admin'}">
         <fieldset style="background-color: #fff8dc;"> <legend>Cadastrar Novo Livro</legend>
             <form action="livros" method="POST">

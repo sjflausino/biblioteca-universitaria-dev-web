@@ -45,9 +45,9 @@
                 <td>
                     <%-- Formulário DEVOLVER --%>
                     <c:if test="${empty emp.dataDevolucaoReal}">
-                        <form action="emprestimos" method="POST">
-                            <input type="hidden" name="acao" value="devolver"> <input type="hidden" name="emprestimoId" value="${emp.id}">
-                            <input type="hidden" name="livroId" value="${emp.livro.id}"> 
+                        <form action="devolucao" method="POST" onsubmit="return confirm('Confirmar a devolução de ${emp.livro.titulo}?');">
+                            <input type="hidden" name="emprestimoId" value="${emp.id}">
+                            <input type="hidden" name="livroId" value="${emp.livro.id}">
                             <input type="submit" value="Devolver Livro">
                         </form>
                     </c:if>
@@ -62,6 +62,13 @@
                 </td>
             </tr>
         </c:forEach>
+        <c:if test="${empty meusEmprestimos}">
+            <tr>
+                <td colspan="6" align="center" style="padding: 20px; color: #666;">
+                    Você ainda não possui empréstimos registrados
+                </td>
+            </tr>
+        </c:if>
     </table>
 </body>
 </html>
