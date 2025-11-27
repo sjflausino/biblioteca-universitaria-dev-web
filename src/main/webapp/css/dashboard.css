@@ -91,3 +91,11 @@
 .link-sair:hover {
     color: darkred;
 }
+
+.imagem-biblioteca {
+    position: fixed;
+    right: 20px;
+    bottom: 50px;
+    width: 600px;
+    opacity: 0.9;
+}

@@ -43,5 +43,7 @@
             <a href="login?acao=logout" class="link-sair">Sair do Sistema</a>
         </div>
     </div>
+    <img src="images/background_lib.png" alt="Biblioteca" class="imagem-biblioteca">
+    <jsp:include page="footer.jsp"/>
 </body>
 </html>
