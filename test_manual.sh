@@ -21,13 +21,13 @@ echo "Nota: Este script assume que o banco de dados foi reiniciado (IDs sequenci
 # 1. GESTÃO DE USUÁRIOS E AUTENTICAÇÃO
 # ==============================================================================
 
-separator "1.1. Cadastrar Administrador"
+separator "1.1. Cadastrar Administrador (ID 1)"
 curl -s -o /dev/null -w "%{http_code}" -c ${COOKIE_FILE} -L -d "acao=cadastrar&nome=Admin&email=admin@teste.com&matricula=ADM001&senha=admin&tipo=admin" "${BASE_URL}/usuario"
 
-separator "1.2. Cadastrar Aluno 1 (Sandro)"
+separator "1.2. Cadastrar Aluno 1 - Sandro (ID 2)"
 curl -s -o /dev/null -w "%{http_code}" -b ${COOKIE_FILE} -c ${COOKIE_FILE} -L -d "acao=cadastrar&nome=Sandro&email=sandro@teste.com&matricula=2025001&senha=123&tipo=aluno" "${BASE_URL}/usuario"
 
-separator "1.3. Cadastrar Aluno 2 (Maria)"
+separator "1.3. Cadastrar Aluno 2 - Maria (ID 3)"
 curl -s -o /dev/null -w "%{http_code}" -b ${COOKIE_FILE} -c ${COOKIE_FILE} -L -d "acao=cadastrar&nome=Maria&email=maria@teste.com&matricula=2025002&senha=123&tipo=aluno" "${BASE_URL}/usuario"
 
 separator "1.4. Login Falha (Senha Errada)"
@@ -86,14 +86,14 @@ separator "3.6. Atualizar Perfil (Mudar senha)"
 curl -v -b ${COOKIE_FILE} -c ${COOKIE_FILE} -L -d "acao=atualizar&nome=Sandro Atualizado&senha=12345" "${BASE_URL}/usuario"
 
 # ==============================================================================
-# 4. REGRAS DE ESTOQUE E ADMINISTRAÇÃO
+# 4. REGRAS DE ESTOQUE E ADMINISTRAÇÃO (EMPRÉSTIMOS)
 # ==============================================================================
 
 separator "4.1. Login Aluno 2 (Maria)"
 curl -s -o /dev/null -w "%{http_code}" -c ${COOKIE_FILE} -L -d "email=maria@teste.com&senha=123" "${BASE_URL}/login"
 
 separator "4.2. Maria tenta pegar Livro B (ID 2) - FALHA (Indisponível)"
-# O botão nem apareceria na view, mas forçamos o POST. Deve cair na exception ou validação.
+# O botão nem apareceria na view, mas forçamos o POST.
 curl -v -b ${COOKIE_FILE} -c ${COOKIE_FILE} -L -d "acao=emprestar&livroId=2" "${BASE_URL}/emprestimos"
 
 separator "4.3. Login Admin"
@@ -122,6 +122,39 @@ curl -v -b ${COOKIE_FILE} -c ${COOKIE_FILE} -L -d "acao=devolver&origem=admin&em
 
 separator "5.2. Verificar aumento de estoque no Livro A"
 curl -v -b ${COOKIE_FILE} "${BASE_URL}/livros?busca=Java&tipo=titulo"
+
+# ==============================================================================
+# 6. GESTÃO DE USUÁRIOS (NOVO - ADMIN)
+# ==============================================================================
+
+separator "6.1. Cadastrar Usuário Temporário (ID 4)"
+# Cadastramos via rota pública, mas estamos logados como Admin. 
+# O sistema redireciona para login.jsp, mas o cookie de Admin deve persistir se o JSESSIONID não mudar.
+curl -s -o /dev/null -w "%{http_code}" -b ${COOKIE_FILE} -c ${COOKIE_FILE} -L -d "acao=cadastrar&nome=Temp User&email=temp@teste.com&matricula=TEMP001&senha=123&tipo=aluno" "${BASE_URL}/usuario"
+
+# Garantir login de admin (caso o cadastro tenha invalidado sessão, embora não deva)
+curl -s -o /dev/null -w "%{http_code}" -b ${COOKIE_FILE} -c ${COOKIE_FILE} -L -d "email=admin@teste.com&senha=admin" "${BASE_URL}/login"
+
+separator "6.2. Listar Usuários (Admin)"
+curl -v -b ${COOKIE_FILE} "${BASE_URL}/usuario?acao=gerenciar"
+
+separator "6.3. Editar Usuário Maria (ID 3)"
+# Alterando nome e email da Maria
+curl -v -b ${COOKIE_FILE} -c ${COOKIE_FILE} -L -d "acao=editarAdmin&id=3&nome=Maria Silva Editada&email=maria.nova@teste.com&matricula=2025002&tipo=aluno" "${BASE_URL}/usuario"
+
+separator "6.4. Verificar Edição na Lista"
+curl -s -b ${COOKIE_FILE} "${BASE_URL}/usuario?acao=gerenciar" | grep "Maria Silva Editada"
+
+separator "6.5. Excluir Usuário Temporário (ID 4) - SUCESSO"
+# Usuário sem empréstimos, deve excluir sem erro.
+curl -v -b ${COOKIE_FILE} -c ${COOKIE_FILE} -L -d "acao=excluir&id=4" "${BASE_URL}/usuario" 
+
+separator "6.6. Tentar Excluir Sandro (ID 2) - FALHA (Tem Histórico)"
+# Sandro tem empréstimos (mesmo devolvidos, o registro existe na tabela emprestimo)
+curl -v -b ${COOKIE_FILE} -c ${COOKIE_FILE} -L -d "acao=excluir&id=2" "${BASE_URL}/usuario" 2>&1 | grep "UsuarioComHistorico"
+
+separator "6.7. Tentar Auto-Exclusão (ID 1) - FALHA"
+curl -v -b ${COOKIE_FILE} -c ${COOKIE_FILE} -L -d "acao=excluir&id=1" "${BASE_URL}/usuario" 2>&1 | grep "AutoExclusao"
 
 echo -e "\n\n=================================================="
 echo "FIM DA BATERIA DE TESTES"

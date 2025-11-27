@@ -18,10 +18,11 @@
             <li><a href="emprestimos">Meus Empréstimos / Devoluções</a></li>
             <li><a href="usuario?acao=perfil">Meu Perfil</a></li>
             
-            <c:if test="${sessionScope.usuarioLogado.tipo == 'admin'}">
+<c:if test="${sessionScope.usuarioLogado.tipo == 'admin'}">
                 <hr>
                 <li><strong>Área Administrativa:</strong></li>
                 <li><a href="emprestimos?acao=gerenciar">Gerenciar Empréstimos (Devoluções)</a></li>
+                <li><a href="usuario?acao=gerenciar">Gerenciar Usuários</a></li>
                 <li><a href="relatorios">Relatórios Administrativos</a></li>
                 <hr>
             </c:if>
