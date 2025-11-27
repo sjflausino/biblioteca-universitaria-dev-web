@@ -81,18 +81,16 @@ public class LivrosServlet extends HttpServlet {
         try (Connection conn = DriverManager.getConnection(URL, USUARIO, SENHA)) {
             
             if ("excluir".equals(acao)) {
-                // --- Lógica de EXCLUSÃO com Proteção ---
+                
                 String idStr = request.getParameter("id");
                 String sql = "DELETE FROM livro WHERE id = ?";
                 try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                     stmt.setInt(1, Integer.parseInt(idStr));
                     stmt.executeUpdate();
                 }
-                response.sendRedirect("livros?msg=LivroExcluido");
-                return;
 
             } else if ("editar".equals(acao)) {
-                // --- Lógica de EDIÇÃO Inteligente ---
+                
                 String idStr = request.getParameter("id");
                 String titulo = request.getParameter("titulo");
                 String autor = request.getParameter("autor");
@@ -100,9 +98,6 @@ public class LivrosServlet extends HttpServlet {
                 String isbn = request.getParameter("isbn");
                 int novaQtdTotal = Integer.parseInt(request.getParameter("quantidade"));
 
-                // Atualiza dados e recalcula disponibilidade:
-                // Nova Disponibilidade = Velha Disponibilidade + (Novo Total - Velho Total)
-                // Isso preserva os empréstimos já ativos.
                 String sql = "UPDATE livro SET titulo=?, autor=?, editora=?, isbn=?, "
                            + "quantidade_disponivel = quantidade_disponivel + (? - quantidade_total), "
                            + "quantidade_total=? WHERE id=?";
@@ -112,16 +107,14 @@ public class LivrosServlet extends HttpServlet {
                     stmt.setString(2, autor);
                     stmt.setString(3, editora);
                     stmt.setString(4, isbn);
-                    stmt.setInt(5, novaQtdTotal); // Para o cálculo
-                    stmt.setInt(6, novaQtdTotal); // Para salvar o total
+                    stmt.setInt(5, novaQtdTotal); 
+                    stmt.setInt(6, novaQtdTotal); 
                     stmt.setInt(7, Integer.parseInt(idStr));
                     stmt.executeUpdate();
                 }
-                response.sendRedirect("livros?msg=LivroEditado");
-                return;
 
             } else {
-                // --- Lógica de CADASTRO (Padrão) ---
+                
                 String titulo = request.getParameter("titulo");
                 String autor = request.getParameter("autor");
                 String editora = request.getParameter("editora");
@@ -139,21 +132,18 @@ public class LivrosServlet extends HttpServlet {
                     stmt.setInt(6, qtd);
                     stmt.executeUpdate();
                 }
-                response.sendRedirect("livros?msg=LivroCadastrado");
-                return;
             }
 
         } catch (SQLException e) {
-            // --- CORREÇÃO DO ERRO HTTP 500 ---
-            // Código SQLState 23503 indica violação de chave estrangeira (Foreign Key) no Derby
-            // Significa que tentou apagar um livro que tem empréstimos associados
+            
             if ("23503".equals(e.getSQLState())) {
                 response.sendRedirect("livros?erro=LivroComHistorico");
-                return; // Interrompe para não fazer o redirect final
+                return; 
             }
-            
-            // Outros erros
+
             throw new ServletException("Erro na operação: " + e.getMessage());
         }
+
+        response.sendRedirect("livros");
     }
 }

@@ -45,10 +45,8 @@ public class EmprestimoServlet extends HttpServlet {
         }
 
         if ("gerenciar".equals(acao)) {
-            // Lógica do antigo GerenciarEmprestimosServlet (Admin)
             listarTodosParaAdmin(request, response, usuario);
         } else {
-            // Lógica do antigo EmprestimoServlet (Histórico do Usuário)
             listarHistoricoUsuario(request, response, usuario);
         }
     }
@@ -59,7 +57,6 @@ public class EmprestimoServlet extends HttpServlet {
         
         String acao = request.getParameter("acao");
         
-        // Roteamento de ações
         if ("emprestar".equals(acao)) {
             realizarEmprestimoUsuario(request, response);
         } else if ("adminEmprestar".equals(acao)) {
@@ -69,12 +66,9 @@ public class EmprestimoServlet extends HttpServlet {
         } else if ("pagarMulta".equals(acao)) {
             processarPagamentoMulta(request, response);
         } else {
-            // Ação desconhecida volta para dashboard
             response.sendRedirect("dashboard.jsp");
         }
     }
-
-    // --- MÉTODOS DE LEITURA (GET) ---
 
     private void listarHistoricoUsuario(HttpServletRequest request, HttpServletResponse response, Usuario usuario) 
             throws ServletException, IOException {
@@ -192,8 +186,6 @@ public class EmprestimoServlet extends HttpServlet {
         request.getRequestDispatcher("admin_emprestimos.jsp").forward(request, response);
     }
 
-    // --- MÉTODOS DE ESCRITA (POST) ---
-
     private void realizarEmprestimoUsuario(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Usuario usuario = (Usuario) request.getSession().getAttribute("usuarioLogado");
         String livroIdStr = request.getParameter("livroId");
@@ -201,7 +193,6 @@ public class EmprestimoServlet extends HttpServlet {
         if (livroIdStr == null) { response.sendRedirect("livros?erro=LivroNaoInformado"); return; }
         int livroId = Integer.parseInt(livroIdStr);
 
-        // Usuário comum retorna para a página de livros (acervo)
         executarLogicaEmprestimo(response, usuario.getId(), livroId, "livros", null);
     }
 
@@ -226,22 +217,18 @@ public class EmprestimoServlet extends HttpServlet {
                     }
                 }
             }
-            // Admin retorna para a página de gerenciamento
             executarLogicaEmprestimo(response, alunoId, Integer.parseInt(livroIdStr), "emprestimos?acao=gerenciar", "admin");
             
         } catch (SQLException e) { throw new ServletException(e); }
     }
 
-    // Lógica comum para registrar empréstimo no banco
     private void executarLogicaEmprestimo(HttpServletResponse response, int usuarioId, int livroId, String urlSucesso, String origem) 
             throws IOException, ServletException {
         
-        // CORREÇÃO CRÍTICA: Verifica se a URL já possui parâmetros para usar o separador correto
         String separador = urlSucesso.contains("?") ? "&" : "?";
 
         try (Connection conn = DriverManager.getConnection(URL, USUARIO_DB, SENHA_DB)) {
             
-            // 1. Verifica bloqueios (Multas ou Atrasos)
             String sqlBloqueio = "SELECT COUNT(*) FROM emprestimo WHERE usuario_id = ? AND (multa > 0 OR (data_devolucao_real IS NULL AND data_prevista_devolucao < CURRENT_DATE))";
             try (PreparedStatement stmt = conn.prepareStatement(sqlBloqueio)) {
                 stmt.setInt(1, usuarioId);
@@ -253,7 +240,6 @@ public class EmprestimoServlet extends HttpServlet {
                 }
             }
 
-            // 2. Verifica duplicidade (Mesmo livro não devolvido)
             String sqlDup = "SELECT COUNT(*) FROM emprestimo WHERE usuario_id = ? AND livro_id = ? AND data_devolucao_real IS NULL";
             try (PreparedStatement stmt = conn.prepareStatement(sqlDup)) {
                 stmt.setInt(1, usuarioId);
@@ -268,7 +254,7 @@ public class EmprestimoServlet extends HttpServlet {
 
             conn.setAutoCommit(false);
             try {
-                // 3. Verifica Disponibilidade no Estoque e Insere
+
                 boolean disponivel = false;
                 try (PreparedStatement stmt = conn.prepareStatement("SELECT quantidade_disponivel FROM livro WHERE id = ?")) {
                     stmt.setInt(1, livroId);
@@ -318,7 +304,7 @@ public class EmprestimoServlet extends HttpServlet {
             conn.setAutoCommit(false);
             try {
                 double multa = 0.0;
-                // Calcula multa se houver atraso
+
                 try (PreparedStatement stmt = conn.prepareStatement("SELECT data_prevista_devolucao FROM emprestimo WHERE id = ?")) {
                     stmt.setInt(1, empId);
                     try (ResultSet rs = stmt.executeQuery()) {
@@ -333,14 +319,12 @@ public class EmprestimoServlet extends HttpServlet {
                     }
                 }
 
-                // Atualiza o empréstimo com a data real de devolução e a multa
                 try (PreparedStatement stmt = conn.prepareStatement("UPDATE emprestimo SET data_devolucao_real = CURRENT_DATE, multa = ? WHERE id = ?")) {
                     stmt.setDouble(1, multa);
                     stmt.setInt(2, empId);
                     stmt.executeUpdate();
                 }
 
-                // Devolve o livro ao estoque (+1)
                 try (PreparedStatement stmt = conn.prepareStatement("UPDATE livro SET quantidade_disponivel = quantidade_disponivel + 1 WHERE id = ?")) {
                     stmt.setInt(1, livroId);
                     stmt.executeUpdate();

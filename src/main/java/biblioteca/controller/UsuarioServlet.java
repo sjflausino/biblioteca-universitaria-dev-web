@@ -32,7 +32,6 @@ public class UsuarioServlet extends HttpServlet {
         HttpSession session = request.getSession(false);
         Usuario usuarioLogado = (session != null) ? (Usuario) session.getAttribute("usuarioLogado") : null;
 
-        // Roteamento
         if ("perfil".equals(acao)) {
             if (usuarioLogado == null) {
                 response.sendRedirect("login.jsp");
@@ -42,7 +41,6 @@ public class UsuarioServlet extends HttpServlet {
         } else if ("cadastro".equals(acao)) {
             request.getRequestDispatcher("cadastro.jsp").forward(request, response);
             
-        // --- NOVA LÓGICA: GERENCIAR (ADMIN) ---
         } else if ("gerenciar".equals(acao)) {
             listarUsuariosParaAdmin(request, response, usuarioLogado);
             
@@ -62,7 +60,6 @@ public class UsuarioServlet extends HttpServlet {
         } else if ("atualizar".equals(acao)) {
             processarAtualizacao(request, response);
             
-        // --- NOVAS LÓGICAS DE ADMIN ---
         } else if ("editarAdmin".equals(acao)) {
             processarEdicaoAdmin(request, response);
         } else if ("excluir".equals(acao)) {
@@ -73,34 +70,54 @@ public class UsuarioServlet extends HttpServlet {
         }
     }
 
-    // --- MÉTODOS EXISTENTES (Cadastro e Atualização Pessoal) ---
-    // (Mantenha os métodos processarCadastro e processarAtualizacao como estão no original)
-    // ... [CÓDIGO OMITIDO PARA BREVIDADE, MANTER O QUE JÁ EXISTE NAS LINHAS 232-249] ...
-    
-    // Vou reincluir versões simplificadas aqui apenas para contexto se você copiar e colar tudo:
-    private void processarCadastro(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // ... (Lógica original de cadastro) ...
-        // Se precisar do código completo desta parte, verifique as linhas 232-240 do seu arquivo original.
-         try (Connection conn = DriverManager.getConnection(URL, USUARIO_DB, SENHA_DB)) {
+
+    private void processarCadastro(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        
+        String nome = request.getParameter("nome");
+        String email = request.getParameter("email");
+        String matricula = request.getParameter("matricula");
+        String senha = request.getParameter("senha");
+        
+        String tipoSolicitado = request.getParameter("tipo"); 
+
+        HttpSession session = request.getSession(false);
+        Usuario usuarioLogado = (session != null) ? (Usuario) session.getAttribute("usuarioLogado") : null;
+        boolean isLoggedAdmin = (usuarioLogado != null && "admin".equals(usuarioLogado.getTipo()));
+
+        String tipoFinal;
+        if (isLoggedAdmin) {
+            tipoFinal = (tipoSolicitado != null) ? tipoSolicitado : "aluno";
+        } else {
+            tipoFinal = "aluno";
+        }
+
+        try (Connection conn = DriverManager.getConnection(URL, USUARIO_DB, SENHA_DB)) {
             String sql = "INSERT INTO usuario (nome, email, matricula, senha, tipo) VALUES (?, ?, ?, ?, ?)";
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setString(1, request.getParameter("nome"));
-                stmt.setString(2, request.getParameter("email"));
-                stmt.setString(3, request.getParameter("matricula"));
-                stmt.setString(4, request.getParameter("senha"));
-                String tipo = request.getParameter("tipo");
-                stmt.setString(5, tipo != null ? tipo : "aluno");
-                stmt.executeUpdate();
+                stmt.setString(1, nome);
+                stmt.setString(2, email);
+                stmt.setString(3, matricula);
+                stmt.setString(4, senha);
+                stmt.setString(5, tipoFinal); 
             }
-            response.sendRedirect("login.jsp?msg=cadastrado");
+
+            if (isLoggedAdmin) {
+                response.sendRedirect("usuario?acao=gerenciar&msg=CadastradoSucesso");
+            } else {
+                response.sendRedirect("login.jsp?msg=cadastrado");
+            }
+
         } catch (SQLException e) {
             request.setAttribute("erro", "Erro ao cadastrar: " + e.getMessage());
+            request.setAttribute("nome", nome);
+            request.setAttribute("email", email);
             request.getRequestDispatcher("cadastro.jsp").forward(request, response);
         }
     }
 
     private void processarAtualizacao(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // ... (Lógica original de atualização de perfil pessoal) ...
+        
          HttpSession session = request.getSession(false);
         Usuario usuarioLogado = (session != null) ? (Usuario) session.getAttribute("usuarioLogado") : null;
         if (usuarioLogado == null) { response.sendRedirect("login.jsp"); return; }
@@ -124,7 +141,7 @@ public class UsuarioServlet extends HttpServlet {
     }
 
 
-    // --- NOVOS MÉTODOS PARA O ADMIN ---
+    
 
     private void listarUsuariosParaAdmin(HttpServletRequest request, HttpServletResponse response, Usuario admin) 
             throws ServletException, IOException {
@@ -148,7 +165,7 @@ public class UsuarioServlet extends HttpServlet {
                 u.setEmail(rs.getString("email"));
                 u.setMatricula(rs.getString("matricula"));
                 u.setTipo(rs.getString("tipo"));
-                // Não precisamos expor a senha na listagem
+                
                 lista.add(u);
             }
 
@@ -173,7 +190,7 @@ public class UsuarioServlet extends HttpServlet {
 
         int idParaExcluir = Integer.parseInt(request.getParameter("id"));
 
-        // Proteção: Admin não pode se excluir
+        
         if (idParaExcluir == admin.getId()) {
             response.sendRedirect("usuario?acao=gerenciar&erro=AutoExclusao");
             return;
@@ -188,7 +205,7 @@ public class UsuarioServlet extends HttpServlet {
             response.sendRedirect("usuario?acao=gerenciar&msg=ExcluidoSucesso");
             
         } catch (SQLException e) {
-            // Tratamento para chave estrangeira (se usuário tem empréstimos)
+            
             if ("23503".equals(e.getSQLState())) {
                 response.sendRedirect("usuario?acao=gerenciar&erro=UsuarioComHistorico");
             } else {
@@ -200,7 +217,7 @@ public class UsuarioServlet extends HttpServlet {
     private void processarEdicaoAdmin(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        // Verifica permissão
+        
         HttpSession session = request.getSession(false);
         Usuario admin = (session != null) ? (Usuario) session.getAttribute("usuarioLogado") : null;
         if (admin == null || !"admin".equals(admin.getTipo())) {
@@ -217,7 +234,7 @@ public class UsuarioServlet extends HttpServlet {
 
         try (Connection conn = DriverManager.getConnection(URL, USUARIO_DB, SENHA_DB)) {
             
-            // Query dinâmica: Atualiza senha apenas se for preenchida
+            
             StringBuilder sql = new StringBuilder("UPDATE usuario SET nome=?, email=?, matricula=?, tipo=?");
             if (novaSenha != null && !novaSenha.trim().isEmpty()) {
                 sql.append(", senha=?");

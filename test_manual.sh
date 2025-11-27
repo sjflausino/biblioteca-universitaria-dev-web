@@ -36,6 +36,17 @@ curl -v -b ${COOKIE_FILE} -c ${COOKIE_FILE} -L -d "email=admin@teste.com&senha=e
 separator "1.5. Login Sucesso (Admin)"
 curl -s -o /dev/null -w "%{http_code}" -b ${COOKIE_FILE} -c ${COOKIE_FILE} -L -d "email=admin@teste.com&senha=admin" "${BASE_URL}/login"
 
+separator "1.6. Tentativa de Hacker (Auto-cadastro como Admin)"
+# Tentamos enviar tipo=admin sem estar logado. 
+# O sistema deve ignorar e cadastrar como 'aluno'.
+curl -s -o /dev/null -w "%{http_code}" -c ${COOKIE_FILE} -L -d "acao=cadastrar&nome=Hacker&email=hacker@teste.com&matricula=HACK001&senha=123&tipo=admin" "${BASE_URL}/usuario"
+
+# Agora fazemos login como Admin REAL para verificar o que aconteceu com o Hacker
+curl -s -o /dev/null -w "%{http_code}" -b ${COOKIE_FILE} -c ${COOKIE_FILE} -L -d "email=admin@teste.com&senha=admin" "${BASE_URL}/login"
+
+echo "Verificando se o Hacker virou Aluno (Correto) ou Admin (Falha de Segurança)..."
+# Se o grep encontrar "Admin</span>" na linha do Hacker, falhou. Se não encontrar, sucesso.
+curl -s -b ${COOKIE_FILE} "${BASE_URL}/usuario?acao=gerenciar" | grep -A 5 "Hacker"
 # ==============================================================================
 # 2. GESTÃO DE ACERVO (ADMIN)
 # ==============================================================================

@@ -37,18 +37,18 @@
             <label>Senha:</label>
             <input type="password" name="senha" required>
 
-            <label>Tipo de Usuário:</label>
-            <select name="tipo">
-                <option value="aluno" ${param.tipo == 'aluno' ? 'selected' : ''}>Aluno</option>
-                <option value="admin" ${param.tipo == 'admin' ? 'selected' : ''}>Administrador</option>
-            </select>
+            <c:choose>
+                <c:when test="${not empty sessionScope.usuarioLogado and sessionScope.usuarioLogado.tipo == 'admin'}">
+                    <label style="color: blue; font-weight: bold;">Tipo de Usuário (Modo Admin):</label>
+                    <select name="tipo">
+                        <option value="aluno" ${param.tipo == 'aluno' ? 'selected' : ''}>Aluno</option>
+                        <option value="admin" ${param.tipo == 'admin' ? 'selected' : ''}>Administrador</option>
+                    </select>
+                </c:when>
+                <c:otherwise>
+                    <%-- Usuário comum nem vê a opção, vai oculto como aluno --%>
+                    <input type="hidden" name="tipo" value="aluno">
+                </c:otherwise>
+            </c:choose>
 
             <input type="submit" value="Cadastrar">
-        </form>
-
-        <div class="links">
-            <a href="login.jsp">Voltar para Login</a>
-        </div>
-    </div>
-</body>
-</html>
