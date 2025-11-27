@@ -24,9 +24,8 @@ public class LivrosServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         try {
-            Class.forName("org.apache.derby.jdbc.ClientDriver");
             conexao = DriverManager.getConnection("jdbc:derby://localhost:1527/biblioteca", "biblioteca", "biblioteca");
-        } catch (Exception ex) {
+        } catch (SQLException ex) {
             throw new ServletException("Erro ao conectar no banco: " + ex.getMessage());
         }
     }
