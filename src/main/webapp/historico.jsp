@@ -49,7 +49,8 @@
                 <td>
                     <%-- Formulário DEVOLVER --%>
                     <c:if test="${empty emp.dataDevolucaoReal}">
-                        <form action="devolucao" method="POST" onsubmit="return confirm('Confirmar a devolução de ${emp.livro.titulo}?');">
+                        <form action="emprestimos" method="POST" onsubmit="return confirm('Confirmar a devolução de ${emp.livro.titulo}?');">
+                            <input type="hidden" name="acao" value="devolver">
                             <input type="hidden" name="emprestimoId" value="${emp.id}">
                             <input type="hidden" name="livroId" value="${emp.livro.id}">
                             <input type="submit" value="Devolver Livro">
