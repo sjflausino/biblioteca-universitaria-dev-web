@@ -1,66 +1,79 @@
-/* Estilos para a página de livros */
 
 fieldset {
     margin-bottom: 15px;
-    padding: 10px;
-    border: 1px solid #ccc;
+    padding: 15px;
+    border: 1px solid silver;
+    background-color: whitesmoke;
 }
 
-legend {
+fieldset legend {
     font-weight: bold;
+    padding: 0 8px;
+}
+
+.fieldset-cadastro {
+    background-color: lightyellow;
+    border-color: khaki;
+}
+
+.fieldset-pesquisa {
+    background-color: aliceblue;
+    border-color: lightblue;
+}
+
+fieldset form {
+    display: inline;
+}
+
+fieldset input[type="text"],
+fieldset input[type="number"],
+fieldset select {
+    margin-right: 8px;
+    margin-bottom: 5px;
 }
 
 .btn-limpar {
-    background-color: #f0f0f0;
-    border: 1px solid #999;
-    cursor: pointer;
-    padding: 2px 6px;
-    text-decoration: none;
-    color: black;
+    background-color: lightgray;
+    border: 1px solid gray;
+    padding: 6px 12px;
     font-size: 13px;
 }
 
-.acoes-admin {
-    text-align: center;
-}
-
-.acoes-admin hr {
-    margin: 5px 0;
-}
-
-.btn-excluir {
-    background-color: #ffcccc;
-    cursor: pointer;
-}
-
-.msg-erro {
-    color: red;
-}
-
-.msg-sucesso {
-    color: green;
-    background-color: #dff0d8;
-    padding: 10px;
-    border: 1px solid green;
-}
-
-.msg-erro-destaque {
-    color: red;
-    background-color: #ffe6e6;
-    padding: 10px;
-    border: 1px solid red;
-}
-
-table {
-    border-collapse: collapse;
-}
-
-table td, table th {
-    padding: 8px;
+table th {
+    background-color: lightgray;
 }
 
 .status-indisponivel {
     color: gray;
     font-style: italic;
-    font-size: 0.9em;
+    font-size: 13px;
+}
+
+.acoes-admin {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid lightgray;
+}
+
+.acoes-admin form {
+    display: inline-block;
+    margin: 2px;
+}
+
+.btn-excluir {
+    background-color: lightpink;
+    border: 1px solid indianred;
+}
+
+.btn-excluir:hover {
+    background-color: pink;
+}
+
+td form {
+    display: inline-block;
+}
+
+td form input[type="submit"] {
+    padding: 6px 12px;
+    font-size: 13px;
 }

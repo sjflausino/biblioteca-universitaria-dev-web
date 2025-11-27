@@ -1,39 +1,31 @@
-/* Estilos para a página de histórico de empréstimos */
-
-table {
-    border-collapse: collapse;
-    width: 100%;
-}
-
-table td, table th {
-    padding: 8px;
-    border: 1px solid #ddd;
-}
 
 table th {
-    background-color: #f2f2f2;
-    font-weight: bold;
+    background-color: lightgray;
 }
 
 .status-pendente {
     color: orange;
+    font-weight: bold;
 }
 
 .multa-valor {
     color: red;
+    font-weight: bold;
 }
 
 .msg-lista-vazia {
-    padding: 20px;
-    color: #666;
+    padding: 30px;
+    color: gray;
     text-align: center;
+    font-style: italic;
 }
 
-.msg-sucesso {
-    color: green;
-}
-
-form {
+td form {
     display: inline-block;
     margin: 2px;
+}
+
+td form input[type="submit"] {
+    padding: 6px 12px;
+    font-size: 13px;
 }

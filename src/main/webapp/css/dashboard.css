@@ -1,0 +1,93 @@
+
+.dashboard-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: white;
+    border: 1px solid lightgray;
+    padding: 30px;
+}
+
+.dashboard-header {
+    border-bottom: 1px solid lightgray;
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+}
+
+.dashboard-header h1 {
+    margin: 0;
+    color: black;
+}
+
+.menus-container {
+    display: table;
+    width: 100%;
+    border-spacing: 20px 0;
+}
+
+.menu-section {
+    display: table-cell;
+    vertical-align: top;
+    width: 50%;
+}
+
+.menu-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: black;
+    padding-bottom: 10px;
+    border-bottom: 2px solid steelblue;
+    margin-bottom: 10px;
+}
+
+.menu-admin .menu-title {
+    border-bottom-color: sienna;
+}
+
+.menu-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.menu-list li {
+    margin-bottom: 8px;
+}
+
+.menu-list a {
+    display: block;
+    padding: 10px 12px;
+    background-color: whitesmoke;
+    border: 1px solid lightgray;
+    color: black;
+    text-decoration: none;
+}
+
+.menu-list a:hover {
+    background-color: lightgray;
+    border-color: silver;
+}
+
+.menu-admin .menu-list a {
+    background-color: linen;
+    border-color: burlywood;
+}
+
+.menu-admin .menu-list a:hover {
+    background-color: wheat;
+    border-color: tan;
+}
+
+.dashboard-footer {
+    margin-top: 25px;
+    padding-top: 15px;
+    border-top: 1px solid lightgray;
+    text-align: center;
+}
+
+.link-sair {
+    color: indianred;
+}
+
+.link-sair:hover {
+    color: darkred;
+}
