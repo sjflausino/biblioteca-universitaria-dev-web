@@ -27,9 +27,26 @@ import jakarta.servlet.http.HttpSession;
 @WebServlet("/emprestimos")
 public class EmprestimoServlet extends HttpServlet {
 
-    private static final String URL = "jdbc:derby://localhost:1527/biblioteca";
-    private static final String USUARIO_DB = "biblioteca";
-    private static final String SENHA_DB = "biblioteca";
+    private Connection conexao = null;
+
+    @Override
+    public void init() throws ServletException {
+        try {
+            conexao = DriverManager.getConnection("jdbc:derby://localhost:1527/biblioteca", "biblioteca", "biblioteca");
+        } catch (SQLException ex) {
+            throw new ServletException("Erro ao conectar no banco: " + ex.getMessage());
+        }
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            if (conexao != null && !conexao.isClosed()) {
+                conexao.close();
+            }
+        } catch (SQLException ex) {
+        }
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -38,7 +55,7 @@ public class EmprestimoServlet extends HttpServlet {
         String acao = request.getParameter("acao");
         HttpSession session = request.getSession(false);
         Usuario usuario = (session != null) ? (Usuario) session.getAttribute("usuarioLogado") : null;
-
+        
         if (usuario == null) {
             response.sendRedirect("login.jsp");
             return;
@@ -56,7 +73,6 @@ public class EmprestimoServlet extends HttpServlet {
             throws ServletException, IOException {
         
         String acao = request.getParameter("acao");
-        
         if ("emprestar".equals(acao)) {
             realizarEmprestimoUsuario(request, response);
         } else if ("adminEmprestar".equals(acao)) {
@@ -77,9 +93,8 @@ public class EmprestimoServlet extends HttpServlet {
                    + "JOIN livro l ON e.livro_id = l.id "
                    + "WHERE e.usuario_id = ? ORDER BY e.data_emprestimo DESC";
         List<Emprestimo> lista = new ArrayList<>();
-
-        try (Connection conn = DriverManager.getConnection(URL, USUARIO_DB, SENHA_DB); 
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        
+        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
 
             stmt.setInt(1, usuario.getId());
             try (ResultSet rs = stmt.executeQuery()) {
@@ -144,9 +159,8 @@ public class EmprestimoServlet extends HttpServlet {
         }
 
         sql.append("ORDER BY e.data_prevista_devolucao ASC");
-
-        try (Connection conn = DriverManager.getConnection(URL, USUARIO_DB, SENHA_DB);
-             PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+        
+        try (PreparedStatement stmt = conexao.prepareStatement(sql.toString())) {
 
             for (int i = 0; i < parametros.size(); i++) {
                 stmt.setObject(i + 1, parametros.get(i));
@@ -165,7 +179,6 @@ public class EmprestimoServlet extends HttpServlet {
                     
                     java.sql.Date dataPrev = rs.getDate("data_prevista_devolucao");
                     linha.put("dataPrev", dataPrev);
-
                     double multaEstimada = 0.0;
                     if (dataPrev != null) {
                         LocalDate dataPrevLocal = dataPrev.toLocalDate();
@@ -187,12 +200,18 @@ public class EmprestimoServlet extends HttpServlet {
     }
 
     private void realizarEmprestimoUsuario(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Usuario usuario = (Usuario) request.getSession().getAttribute("usuarioLogado");
-        String livroIdStr = request.getParameter("livroId");
+        HttpSession session = request.getSession(false);
+        Usuario usuario = (session != null) ? (Usuario) session.getAttribute("usuarioLogado") : null;
         
-        if (livroIdStr == null) { response.sendRedirect("livros?erro=LivroNaoInformado"); return; }
-        int livroId = Integer.parseInt(livroIdStr);
+        if (usuario == null) {
+            response.sendRedirect("login.jsp?erro=SessaoExpirada");
+            return;
+        }
 
+        String livroIdStr = request.getParameter("livroId");
+        if (livroIdStr == null) { response.sendRedirect("livros?erro=LivroNaoInformado"); return; }
+        
+        int livroId = Integer.parseInt(livroIdStr);
         executarLogicaEmprestimo(response, usuario.getId(), livroId, "livros", null);
     }
 
@@ -205,9 +224,9 @@ public class EmprestimoServlet extends HttpServlet {
             return;
         }
 
-        try (Connection conn = DriverManager.getConnection(URL, USUARIO_DB, SENHA_DB)) {
+        try {
             int alunoId = -1;
-            try (PreparedStatement stmt = conn.prepareStatement("SELECT id FROM usuario WHERE matricula = ?")) {
+            try (PreparedStatement stmt = conexao.prepareStatement("SELECT id FROM usuario WHERE matricula = ?")) {
                 stmt.setString(1, matriculaAluno);
                 try (ResultSet rs = stmt.executeQuery()) {
                     if (rs.next()) alunoId = rs.getInt("id");
@@ -218,7 +237,6 @@ public class EmprestimoServlet extends HttpServlet {
                 }
             }
             executarLogicaEmprestimo(response, alunoId, Integer.parseInt(livroIdStr), "emprestimos?acao=gerenciar", "admin");
-            
         } catch (SQLException e) { throw new ServletException(e); }
     }
 
@@ -227,10 +245,9 @@ public class EmprestimoServlet extends HttpServlet {
         
         String separador = urlSucesso.contains("?") ? "&" : "?";
 
-        try (Connection conn = DriverManager.getConnection(URL, USUARIO_DB, SENHA_DB)) {
-            
+        try {
             String sqlBloqueio = "SELECT COUNT(*) FROM emprestimo WHERE usuario_id = ? AND (multa > 0 OR (data_devolucao_real IS NULL AND data_prevista_devolucao < CURRENT_DATE))";
-            try (PreparedStatement stmt = conn.prepareStatement(sqlBloqueio)) {
+            try (PreparedStatement stmt = conexao.prepareStatement(sqlBloqueio)) {
                 stmt.setInt(1, usuarioId);
                 try (ResultSet rs = stmt.executeQuery()) {
                     if (rs.next() && rs.getInt(1) > 0) {
@@ -241,7 +258,7 @@ public class EmprestimoServlet extends HttpServlet {
             }
 
             String sqlDup = "SELECT COUNT(*) FROM emprestimo WHERE usuario_id = ? AND livro_id = ? AND data_devolucao_real IS NULL";
-            try (PreparedStatement stmt = conn.prepareStatement(sqlDup)) {
+            try (PreparedStatement stmt = conexao.prepareStatement(sqlDup)) {
                 stmt.setInt(1, usuarioId);
                 stmt.setInt(2, livroId);
                 try (ResultSet rs = stmt.executeQuery()) {
@@ -252,11 +269,11 @@ public class EmprestimoServlet extends HttpServlet {
                 }
             }
 
-            conn.setAutoCommit(false);
+            conexao.setAutoCommit(false); 
+            
             try {
-
                 boolean disponivel = false;
-                try (PreparedStatement stmt = conn.prepareStatement("SELECT quantidade_disponivel FROM livro WHERE id = ?")) {
+                try (PreparedStatement stmt = conexao.prepareStatement("SELECT quantidade_disponivel FROM livro WHERE id = ?")) {
                     stmt.setInt(1, livroId);
                     try (ResultSet rs = stmt.executeQuery()) {
                         if (rs.next() && rs.getInt(1) > 0) disponivel = true;
@@ -266,10 +283,10 @@ public class EmprestimoServlet extends HttpServlet {
                 if (!disponivel) throw new SQLException("Livro Indisponivel");
 
                 LocalDate hoje = LocalDate.now();
-                LocalDate devolucao = hoje.plusDays(7); // Prazo de 7 dias
+                LocalDate devolucao = hoje.plusDays(7); 
                 
                 String sqlIns = "INSERT INTO emprestimo (usuario_id, livro_id, data_emprestimo, data_prevista_devolucao) VALUES (?, ?, ?, ?)";
-                try (PreparedStatement stmt = conn.prepareStatement(sqlIns)) {
+                try (PreparedStatement stmt = conexao.prepareStatement(sqlIns)) {
                     stmt.setInt(1, usuarioId);
                     stmt.setInt(2, livroId);
                     stmt.setDate(3, java.sql.Date.valueOf(hoje));
@@ -277,17 +294,19 @@ public class EmprestimoServlet extends HttpServlet {
                     stmt.executeUpdate();
                 }
 
-                try (PreparedStatement stmt = conn.prepareStatement("UPDATE livro SET quantidade_disponivel = quantidade_disponivel - 1 WHERE id = ?")) {
+                try (PreparedStatement stmt = conexao.prepareStatement("UPDATE livro SET quantidade_disponivel = quantidade_disponivel - 1 WHERE id = ?")) {
                     stmt.setInt(1, livroId);
                     stmt.executeUpdate();
                 }
 
-                conn.commit();
+                conexao.commit();
                 response.sendRedirect(urlSucesso + separador + "msg=EmprestimoSucesso");
 
             } catch (SQLException e) {
-                conn.rollback();
+                conexao.rollback();
                 throw e;
+            } finally {
+                conexao.setAutoCommit(true); 
             }
 
         } catch (SQLException e) {
@@ -300,12 +319,12 @@ public class EmprestimoServlet extends HttpServlet {
         int livroId = Integer.parseInt(request.getParameter("livroId"));
         String origem = request.getParameter("origem");
 
-        try (Connection conn = DriverManager.getConnection(URL, USUARIO_DB, SENHA_DB)) {
-            conn.setAutoCommit(false);
+        try {
+            conexao.setAutoCommit(false);
+            
             try {
                 double multa = 0.0;
-
-                try (PreparedStatement stmt = conn.prepareStatement("SELECT data_prevista_devolucao FROM emprestimo WHERE id = ?")) {
+                try (PreparedStatement stmt = conexao.prepareStatement("SELECT data_prevista_devolucao FROM emprestimo WHERE id = ?")) {
                     stmt.setInt(1, empId);
                     try (ResultSet rs = stmt.executeQuery()) {
                         if (rs.next()) {
@@ -319,19 +338,19 @@ public class EmprestimoServlet extends HttpServlet {
                     }
                 }
 
-                try (PreparedStatement stmt = conn.prepareStatement("UPDATE emprestimo SET data_devolucao_real = CURRENT_DATE, multa = ? WHERE id = ?")) {
+                try (PreparedStatement stmt = conexao.prepareStatement("UPDATE emprestimo SET data_devolucao_real = CURRENT_DATE, multa = ? WHERE id = ?")) {
                     stmt.setDouble(1, multa);
                     stmt.setInt(2, empId);
                     stmt.executeUpdate();
                 }
 
-                try (PreparedStatement stmt = conn.prepareStatement("UPDATE livro SET quantidade_disponivel = quantidade_disponivel + 1 WHERE id = ?")) {
+                try (PreparedStatement stmt = conexao.prepareStatement("UPDATE livro SET quantidade_disponivel = quantidade_disponivel + 1 WHERE id = ?")) {
                     stmt.setInt(1, livroId);
                     stmt.executeUpdate();
                 }
 
-                conn.commit();
-
+                conexao.commit();
+                
                 if ("admin".equals(origem)) {
                     response.sendRedirect("emprestimos?acao=gerenciar&msg=DevolucaoSucesso");
                 } else {
@@ -339,16 +358,18 @@ public class EmprestimoServlet extends HttpServlet {
                 }
 
             } catch (SQLException e) {
-                conn.rollback();
+                conexao.rollback();
                 throw e;
+            } finally {
+                conexao.setAutoCommit(true);
             }
         } catch (SQLException e) { throw new ServletException(e); }
     }
 
     private void processarPagamentoMulta(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int empId = Integer.parseInt(request.getParameter("emprestimoId"));
-        try (Connection conn = DriverManager.getConnection(URL, USUARIO_DB, SENHA_DB)) {
-            try (PreparedStatement stmt = conn.prepareStatement("UPDATE emprestimo SET multa = 0.0 WHERE id = ?")) {
+        try {
+            try (PreparedStatement stmt = conexao.prepareStatement("UPDATE emprestimo SET multa = 0.0 WHERE id = ?")) {
                 stmt.setInt(1, empId);
                 stmt.executeUpdate();
             }

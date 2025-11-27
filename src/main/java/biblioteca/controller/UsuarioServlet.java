@@ -20,9 +20,27 @@ import jakarta.servlet.http.HttpSession;
 @WebServlet("/usuario")
 public class UsuarioServlet extends HttpServlet {
 
-    private static final String URL = "jdbc:derby://localhost:1527/biblioteca";
-    private static final String USUARIO_DB = "biblioteca";
-    private static final String SENHA_DB = "biblioteca";
+    private Connection conexao = null;
+
+    @Override
+    public void init() throws ServletException {
+        try {
+            Class.forName("org.apache.derby.jdbc.ClientDriver");
+            conexao = DriverManager.getConnection("jdbc:derby://localhost:1527/biblioteca", "biblioteca", "biblioteca");
+        } catch (Exception ex) {
+            throw new ServletException("Erro ao conectar no banco: " + ex.getMessage());
+        }
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            if (conexao != null && !conexao.isClosed()) {
+                conexao.close();
+            }
+        } catch (SQLException ex) {
+        }
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -40,10 +58,8 @@ public class UsuarioServlet extends HttpServlet {
             }
         } else if ("cadastro".equals(acao)) {
             request.getRequestDispatcher("cadastro.jsp").forward(request, response);
-            
         } else if ("gerenciar".equals(acao)) {
             listarUsuariosParaAdmin(request, response, usuarioLogado);
-            
         } else {
             response.sendRedirect(usuarioLogado != null ? "dashboard.jsp" : "login.jsp");
         }
@@ -59,17 +75,14 @@ public class UsuarioServlet extends HttpServlet {
             processarCadastro(request, response);
         } else if ("atualizar".equals(acao)) {
             processarAtualizacao(request, response);
-            
         } else if ("editarAdmin".equals(acao)) {
             processarEdicaoAdmin(request, response);
         } else if ("excluir".equals(acao)) {
             processarExclusao(request, response);
-            
         } else {
             response.sendRedirect("index.html");
         }
     }
-
 
     private void processarCadastro(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
@@ -78,7 +91,6 @@ public class UsuarioServlet extends HttpServlet {
         String email = request.getParameter("email");
         String matricula = request.getParameter("matricula");
         String senha = request.getParameter("senha");
-        
         String tipoSolicitado = request.getParameter("tipo"); 
 
         HttpSession session = request.getSession(false);
@@ -92,14 +104,15 @@ public class UsuarioServlet extends HttpServlet {
             tipoFinal = "aluno";
         }
 
-        try (Connection conn = DriverManager.getConnection(URL, USUARIO_DB, SENHA_DB)) {
+        try {
             String sql = "INSERT INTO usuario (nome, email, matricula, senha, tipo) VALUES (?, ?, ?, ?, ?)";
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
                 stmt.setString(1, nome);
                 stmt.setString(2, email);
                 stmt.setString(3, matricula);
                 stmt.setString(4, senha);
                 stmt.setString(5, tipoFinal); 
+                stmt.executeUpdate();
             }
 
             if (isLoggedAdmin) {
@@ -117,14 +130,13 @@ public class UsuarioServlet extends HttpServlet {
     }
 
     private void processarAtualizacao(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        
-         HttpSession session = request.getSession(false);
+        HttpSession session = request.getSession(false);
         Usuario usuarioLogado = (session != null) ? (Usuario) session.getAttribute("usuarioLogado") : null;
         if (usuarioLogado == null) { response.sendRedirect("login.jsp"); return; }
 
-        try (Connection conn = DriverManager.getConnection(URL, USUARIO_DB, SENHA_DB)) {
+        try {
             String sql = "UPDATE usuario SET nome = ?, senha = ? WHERE id = ?";
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
                 stmt.setString(1, request.getParameter("nome"));
                 stmt.setString(2, request.getParameter("senha"));
                 stmt.setInt(3, usuarioLogado.getId());
@@ -140,9 +152,6 @@ public class UsuarioServlet extends HttpServlet {
         }
     }
 
-
-    
-
     private void listarUsuariosParaAdmin(HttpServletRequest request, HttpServletResponse response, Usuario admin) 
             throws ServletException, IOException {
         
@@ -154,8 +163,7 @@ public class UsuarioServlet extends HttpServlet {
         List<Usuario> lista = new ArrayList<>();
         String sql = "SELECT * FROM usuario ORDER BY nome";
 
-        try (Connection conn = DriverManager.getConnection(URL, USUARIO_DB, SENHA_DB);
-             PreparedStatement stmt = conn.prepareStatement(sql);
+        try (PreparedStatement stmt = conexao.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
@@ -165,7 +173,6 @@ public class UsuarioServlet extends HttpServlet {
                 u.setEmail(rs.getString("email"));
                 u.setMatricula(rs.getString("matricula"));
                 u.setTipo(rs.getString("tipo"));
-                
                 lista.add(u);
             }
 
@@ -190,22 +197,20 @@ public class UsuarioServlet extends HttpServlet {
 
         int idParaExcluir = Integer.parseInt(request.getParameter("id"));
 
-        
         if (idParaExcluir == admin.getId()) {
             response.sendRedirect("usuario?acao=gerenciar&erro=AutoExclusao");
             return;
         }
 
-        try (Connection conn = DriverManager.getConnection(URL, USUARIO_DB, SENHA_DB)) {
+        try {
             String sql = "DELETE FROM usuario WHERE id = ?";
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
                 stmt.setInt(1, idParaExcluir);
                 stmt.executeUpdate();
             }
             response.sendRedirect("usuario?acao=gerenciar&msg=ExcluidoSucesso");
             
         } catch (SQLException e) {
-            
             if ("23503".equals(e.getSQLState())) {
                 response.sendRedirect("usuario?acao=gerenciar&erro=UsuarioComHistorico");
             } else {
@@ -216,7 +221,6 @@ public class UsuarioServlet extends HttpServlet {
 
     private void processarEdicaoAdmin(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-        
         
         HttpSession session = request.getSession(false);
         Usuario admin = (session != null) ? (Usuario) session.getAttribute("usuarioLogado") : null;
@@ -232,16 +236,14 @@ public class UsuarioServlet extends HttpServlet {
         String tipo = request.getParameter("tipo");
         String novaSenha = request.getParameter("senha");
 
-        try (Connection conn = DriverManager.getConnection(URL, USUARIO_DB, SENHA_DB)) {
-            
-            
+        try {
             StringBuilder sql = new StringBuilder("UPDATE usuario SET nome=?, email=?, matricula=?, tipo=?");
             if (novaSenha != null && !novaSenha.trim().isEmpty()) {
                 sql.append(", senha=?");
             }
             sql.append(" WHERE id=?");
 
-            try (PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+            try (PreparedStatement stmt = conexao.prepareStatement(sql.toString())) {
                 stmt.setString(1, nome);
                 stmt.setString(2, email);
                 stmt.setString(3, matricula);

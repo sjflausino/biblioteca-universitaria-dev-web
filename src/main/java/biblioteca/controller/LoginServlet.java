@@ -18,9 +18,26 @@ import jakarta.servlet.http.HttpSession;
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
 
-    private static final String URL = "jdbc:derby://localhost:1527/biblioteca";
-    private static final String USUARIO = "biblioteca";
-    private static final String SENHA = "biblioteca";
+    private Connection conexao = null;
+
+    @Override
+    public void init() throws ServletException {
+        try {
+            conexao = DriverManager.getConnection("jdbc:derby://localhost:1527/biblioteca", "biblioteca", "biblioteca");
+        } catch (SQLException ex) {
+            throw new ServletException("Erro ao conectar no banco: " + ex.getMessage());
+        }
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            if (conexao != null && !conexao.isClosed()) {
+                conexao.close();
+            }
+        } catch (SQLException ex) {
+        }
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -39,8 +56,8 @@ public class LoginServlet extends HttpServlet {
             throws ServletException, IOException {
 
         String sql = "SELECT * FROM usuario WHERE email = ? AND senha = ?";
-
-        try (Connection conn = DriverManager.getConnection(URL, USUARIO, SENHA); PreparedStatement stmt = conn.prepareStatement(sql)) {
+        
+        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
 
             stmt.setString(1, request.getParameter("email"));
             stmt.setString(2, request.getParameter("senha"));

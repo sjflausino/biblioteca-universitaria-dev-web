@@ -24,9 +24,26 @@ import jakarta.servlet.http.HttpSession;
 @WebServlet("/relatorios")
 public class RelatoriosServlet extends HttpServlet {
 
-    private static final String URL = "jdbc:derby://localhost:1527/biblioteca";
-    private static final String USUARIO_DB = "biblioteca";
-    private static final String SENHA_DB = "biblioteca";
+    private Connection conexao = null;
+
+    @Override
+    public void init() throws ServletException {
+        try {
+            conexao = DriverManager.getConnection("jdbc:derby://localhost:1527/biblioteca", "biblioteca", "biblioteca");
+        } catch (SQLException ex) {
+            throw new ServletException("Erro ao conectar no banco: " + ex.getMessage());
+        }
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            if (conexao != null && !conexao.isClosed()) {
+                conexao.close();
+            }
+        } catch (SQLException ex) {
+        }
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -34,6 +51,7 @@ public class RelatoriosServlet extends HttpServlet {
 
         HttpSession session = request.getSession(false);
         Usuario u = (session != null) ? (Usuario) session.getAttribute("usuarioLogado") : null;
+        
         if (u == null || !"admin".equals(u.getTipo())) {
             response.sendRedirect("login.jsp");
             return;
@@ -43,13 +61,12 @@ public class RelatoriosServlet extends HttpServlet {
         List<Map<String, Object>> usuariosMaisAtivos = new ArrayList<>();
         List<Map<String, Object>> emprestimosAtrasados = new ArrayList<>();
 
-        try (Connection conn = DriverManager.getConnection(URL, USUARIO_DB, SENHA_DB)) {
-
+        try {
             String sqlTop = "SELECT l.titulo, l.autor, COUNT(e.id) as total FROM emprestimo e "
                     + "JOIN livro l ON e.livro_id = l.id "
                     + "GROUP BY l.titulo, l.autor ORDER BY total DESC";
             
-            try (PreparedStatement stmt = conn.prepareStatement(sqlTop); ResultSet rs = stmt.executeQuery()) {
+            try (PreparedStatement stmt = conexao.prepareStatement(sqlTop); ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     Map<String, Object> linha = new HashMap<>();
                     linha.put("titulo", rs.getString("titulo"));
@@ -63,7 +80,7 @@ public class RelatoriosServlet extends HttpServlet {
                                   + "JOIN usuario u ON e.usuario_id = u.id "
                                   + "GROUP BY u.nome, u.matricula ORDER BY total DESC";
             
-            try (PreparedStatement stmt = conn.prepareStatement(sqlTopUsuarios); ResultSet rs = stmt.executeQuery()) {
+            try (PreparedStatement stmt = conexao.prepareStatement(sqlTopUsuarios); ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     Map<String, Object> linha = new HashMap<>();
                     linha.put("nome", rs.getString("nome"));
@@ -77,10 +94,9 @@ public class RelatoriosServlet extends HttpServlet {
                     + "JOIN usuario u ON e.usuario_id = u.id "
                     + "JOIN livro l ON e.livro_id = l.id "
                     + "WHERE e.data_devolucao_real IS NULL AND e.data_prevista_devolucao < CURRENT_DATE";
-            
-            try (PreparedStatement stmt = conn.prepareStatement(sqlAtraso); ResultSet rs = stmt.executeQuery()) {
+
+            try (PreparedStatement stmt = conexao.prepareStatement(sqlAtraso); ResultSet rs = stmt.executeQuery()) {
                 LocalDate hoje = LocalDate.now();
-                
                 while (rs.next()) {
                     Map<String, Object> linha = new HashMap<>();
                     linha.put("usuario", rs.getString("nome"));

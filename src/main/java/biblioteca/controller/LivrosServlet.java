@@ -19,9 +19,27 @@ import jakarta.servlet.http.HttpServletResponse;
 @WebServlet("/livros")
 public class LivrosServlet extends HttpServlet {
 
-    private static final String URL = "jdbc:derby://localhost:1527/biblioteca";
-    private static final String USUARIO = "biblioteca";
-    private static final String SENHA = "biblioteca";
+    private Connection conexao = null;
+
+    @Override
+    public void init() throws ServletException {
+        try {
+            Class.forName("org.apache.derby.jdbc.ClientDriver");
+            conexao = DriverManager.getConnection("jdbc:derby://localhost:1527/biblioteca", "biblioteca", "biblioteca");
+        } catch (Exception ex) {
+            throw new ServletException("Erro ao conectar no banco: " + ex.getMessage());
+        }
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            if (conexao != null && !conexao.isClosed()) {
+                conexao.close();
+            }
+        } catch (SQLException ex) {
+        }
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -45,8 +63,7 @@ public class LivrosServlet extends HttpServlet {
             }
         }
 
-        try (Connection conn = DriverManager.getConnection(URL, USUARIO, SENHA); 
-            PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+        try (PreparedStatement stmt = conexao.prepareStatement(sql.toString())) {
 
             if (temFiltro) {
                 stmt.setString(1, "%" + busca.toLowerCase() + "%");
@@ -78,13 +95,12 @@ public class LivrosServlet extends HttpServlet {
 
         String acao = request.getParameter("acao");
 
-        try (Connection conn = DriverManager.getConnection(URL, USUARIO, SENHA)) {
-            
+        try {
             if ("excluir".equals(acao)) {
                 
                 String idStr = request.getParameter("id");
                 String sql = "DELETE FROM livro WHERE id = ?";
-                try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
                     stmt.setInt(1, Integer.parseInt(idStr));
                     stmt.executeUpdate();
                 }
@@ -101,8 +117,8 @@ public class LivrosServlet extends HttpServlet {
                 String sql = "UPDATE livro SET titulo=?, autor=?, editora=?, isbn=?, "
                            + "quantidade_disponivel = quantidade_disponivel + (? - quantidade_total), "
                            + "quantidade_total=? WHERE id=?";
-                           
-                try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                
+                try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
                     stmt.setString(1, titulo);
                     stmt.setString(2, autor);
                     stmt.setString(3, editora);
@@ -123,7 +139,7 @@ public class LivrosServlet extends HttpServlet {
                 try { qtd = Integer.parseInt(request.getParameter("quantidade")); } catch (NumberFormatException e) {}
 
                 String sql = "INSERT INTO livro (titulo, autor, editora, isbn, quantidade_total, quantidade_disponivel) VALUES (?, ?, ?, ?, ?, ?)";
-                try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
                     stmt.setString(1, titulo);
                     stmt.setString(2, autor);
                     stmt.setString(3, editora);
