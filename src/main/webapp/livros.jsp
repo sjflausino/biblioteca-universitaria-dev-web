@@ -5,11 +5,8 @@
 <html>
 <head>
     <title>Livros</title>
-    <style>
-        fieldset { margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; }
-        legend { font-weight: bold; }
-        .btn-limpar { background-color: #f0f0f0; border: 1px solid #999; cursor: pointer; padding: 2px 6px; text-decoration: none; color: black; font-size: 13px;}
-    </style>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/livros.css">
 </head>
 <body>
     <a href="dashboard.jsp">Voltar</a>
@@ -18,19 +15,19 @@
     <%-- Tratamento de erros --%>
     <c:choose>
         <c:when test="${not empty erro}">
-            <h3 style="color:red">${erro}</h3>
+            <h3 class="msg-erro">${erro}</h3>
         </c:when>
         <c:when test="${param.erro == 'LivroJaComUsuario'}">
-            <h3 style="color:red">Você já possui um exemplar deste livro pendente de devolução!</h3>
+            <h3 class="msg-erro">Você já possui um exemplar deste livro pendente de devolução!</h3>
         </c:when>
         <c:when test="${param.erro == 'Bloqueado'}">
-            <h3 style="color:red">Empréstimo negado: Pendências financeiras ou livros em atraso.</h3>
+            <h3 class="msg-erro">Empréstimo negado: Pendências financeiras ou livros em atraso.</h3>
         </c:when>
         <c:when test="${param.erro == 'DadosInvalidos'}">
-            <h3 style="color:red">Dados inválidos para a operação.</h3>
+            <h3 class="msg-erro">Dados inválidos para a operação.</h3>
         </c:when>
         <c:when test="${param.erro == 'LivroNaoInformado'}">
-            <h3 style="color:red">Erro: Nenhum livro selecionado.</h3>
+            <h3 class="msg-erro">Erro: Nenhum livro selecionado.</h3>
         </c:when>
     </c:choose>
 
@@ -93,20 +90,22 @@
                             </form>
                         </c:if>
                         <c:if test="${livro.quantidadeDisponivel == 0}">
-                            <span style="color: gray; font-style: italic; font-size: 0.9em;">Indisponível</span>
+                            <span class="status-indisponivel">Indisponível</span>
                         </c:if>
 
                         <%-- AÇÕES ADMINISTRATIVAS (Editar/Excluir via LivrosServlet) --%>
                         <c:if test="${sessionScope.usuarioLogado.tipo == 'admin'}">
-                            <hr style="margin: 5px 0;">
-                            <a href="editar_livro.jsp?id=${livro.id}&titulo=${livro.titulo}&autor=${livro.autor}&editora=${livro.editora}&isbn=${livro.isbn}&quantidade=${livro.quantidadeDisponivel}">
-                                <button type="button">Editar</button>
-                            </a>
-                            <form action="livros" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir?');" style="display:inline;">
-                                <input type="hidden" name="acao" value="excluir">
-                                <input type="hidden" name="id" value="${livro.id}">
-                                <input type="submit" value="Excluir" style="background-color: #ffcccc; cursor: pointer;">
-                            </form>
+                            <div class="acoes-admin">
+                                <hr>
+                                <a href="editar_livro.jsp?id=${livro.id}&titulo=${livro.titulo}&autor=${livro.autor}&editora=${livro.editora}&isbn=${livro.isbn}&quantidade=${livro.quantidadeDisponivel}">
+                                    <button type="button">Editar</button>
+                                </a>
+                                <form action="livros" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir?');" style="display:inline;">
+                                    <input type="hidden" name="acao" value="excluir">
+                                    <input type="hidden" name="id" value="${livro.id}">
+                                    <input type="submit" value="Excluir" class="btn-excluir">
+                                </form>
+                            </div>
                         </c:if>
                     </td>
                 </tr>

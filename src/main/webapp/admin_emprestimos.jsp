@@ -10,17 +10,19 @@
 <html>
 <head>
     <title>Gerenciar Empréstimos - Admin</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/admin_emprestimos.css">
 </head>
 <body>
     <a href="dashboard.jsp">Voltar ao Painel</a>
     <h1>Gerenciar Empréstimos</h1>
 
-    <c:if test="${param.erro == 'AlunoNaoEncontrado'}"><h3 style="color:red">Erro: Matrícula não encontrada.</h3></c:if>
-    <c:if test="${param.erro == 'AlunoBloqueado'}"><h3 style="color:red">Erro: Aluno possui pendências ou atrasos.</h3></c:if>
-    <c:if test="${param.msg == 'Sucesso' or param.msg == 'EmprestimoSucesso'}"><h3 style="color:green">Empréstimo realizado com sucesso!</h3></c:if>
-    <c:if test="${param.msg == 'DevolucaoSucesso'}"><h3 style="color:green">Devolução registrada com sucesso!</h3></c:if>
+    <c:if test="${param.erro == 'AlunoNaoEncontrado'}"><h3 class="msg-erro">Erro: Matrícula não encontrada.</h3></c:if>
+    <c:if test="${param.erro == 'AlunoBloqueado'}"><h3 class="msg-erro">Erro: Aluno possui pendências ou atrasos.</h3></c:if>
+    <c:if test="${param.msg == 'Sucesso' or param.msg == 'EmprestimoSucesso'}"><h3 class="msg-sucesso">Empréstimo realizado com sucesso!</h3></c:if>
+    <c:if test="${param.msg == 'DevolucaoSucesso'}"><h3 class="msg-sucesso">Devolução registrada com sucesso!</h3></c:if>
 
-    <fieldset style="background-color: #f9f9f9;">
+    <fieldset class="fieldset-novo-emprestimo">
         <legend><strong>Novo Empréstimo (Exclusivo Admin)</strong></legend>
         <form action="emprestimos" method="POST">
             <input type="hidden" name="acao" value="adminEmprestar"> <label>Matrícula do Aluno:</label>
@@ -70,18 +72,18 @@
 
                     <c:choose>
                         <c:when test="${emp.multaEstimadaNum > 0}">
-                            <td style="color:red; font-weight:bold;">${emp.dataPrev}</td>
+                            <td class="data-atrasada">${emp.dataPrev}</td>
                         </c:when>
                         <c:otherwise>
                             <td>${emp.dataPrev}</td>
                         </c:otherwise>
                     </c:choose>
 
-                    <td style="color: orange;">Pendente</td>
+                    <td class="status-pendente">Pendente</td>
 
                     <td>
                         <c:if test="${emp.multaEstimadaNum > 0}">
-                            <span style="color:red">R$ ${emp.multaEstimada}</span>
+                            <span class="multa-valor">R$ ${emp.multaEstimada}</span>
                         </c:if>
                         <c:if test="${emp.multaEstimadaNum == 0}">-</c:if>
                     </td>

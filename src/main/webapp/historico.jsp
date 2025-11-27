@@ -4,13 +4,17 @@
 
 <!DOCTYPE html>
 <html>
-<head><title>Meus Empréstimos</title></head>
+<head>
+    <title>Meus Empréstimos</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/historico.css">
+</head>
 <body>
     <a href="dashboard.jsp">Voltar</a>
     <h2>Histórico de Empréstimos</h2>
     
-    <c:if test="${param.msg == 'DevolucaoSucesso'}"><h3 style="color:green">Livro devolvido com sucesso!</h3></c:if>
-    <c:if test="${param.msg == 'MultaPaga'}"><h3 style="color:green">Pagamento da multa registrado!</h3></c:if>
+    <c:if test="${param.msg == 'DevolucaoSucesso'}"><h3 class="msg-sucesso">Livro devolvido com sucesso!</h3></c:if>
+    <c:if test="${param.msg == 'MultaPaga'}"><h3 class="msg-sucesso">Pagamento da multa registrado!</h3></c:if>
 
     <table border="1" width="100%">
         <tr>
@@ -29,7 +33,7 @@
                 <td>
                     <c:choose>
                         <c:when test="${empty emp.dataDevolucaoReal}">
-                            <span style="color: orange;">Pendente</span>
+                            <span class="status-pendente">Pendente</span>
                         </c:when>
                         <c:otherwise>
                             <fmt:formatDate value="${emp.dataDevolucaoReal}" pattern="dd/MM/yyyy"/>
@@ -38,7 +42,7 @@
                 </td>
                 <td>
                     <c:if test="${emp.multa > 0}">
-                        <span style="color:red">R$ ${emp.multa}</span>
+                        <span class="multa-valor">R$ ${emp.multa}</span>
                     </c:if>
                     <c:if test="${emp.multa == 0}">-</c:if>
                 </td>
@@ -64,8 +68,8 @@
         </c:forEach>
         <c:if test="${empty meusEmprestimos}">
             <tr>
-                <td colspan="6" align="center" style="padding: 20px; color: #666;">
-                    Você ainda não possui empréstimos registrados
+                <td colspan="6" align="center" class="msg-lista-vazia">
+                    Você ainda não possui empréstimos registrados.
                 </td>
             </tr>
         </c:if>

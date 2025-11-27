@@ -1,0 +1,39 @@
+/* Estilos para a página de histórico de empréstimos */
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+table td, table th {
+    padding: 8px;
+    border: 1px solid #ddd;
+}
+
+table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.status-pendente {
+    color: orange;
+}
+
+.multa-valor {
+    color: red;
+}
+
+.msg-lista-vazia {
+    padding: 20px;
+    color: #666;
+    text-align: center;
+}
+
+.msg-sucesso {
+    color: green;
+}
+
+form {
+    display: inline-block;
+    margin: 2px;
+}

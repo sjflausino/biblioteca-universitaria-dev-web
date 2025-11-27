@@ -1,0 +1,62 @@
+/* Estilos para a página administrativa de empréstimos */
+
+fieldset {
+    margin-bottom: 15px;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+legend {
+    font-weight: bold;
+    padding: 0 10px;
+}
+
+.fieldset-novo-emprestimo {
+    background-color: #f9f9f9;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+table td, table th {
+    padding: 8px;
+    border: 1px solid #ddd;
+}
+
+table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.data-atrasada {
+    color: red;
+    font-weight: bold;
+}
+
+.status-pendente {
+    color: orange;
+}
+
+.multa-valor {
+    color: red;
+}
+
+.msg-erro {
+    color: red;
+}
+
+.msg-sucesso {
+    color: green;
+}
+
+form {
+    margin: 5px 0;
+}
+
+input[type="text"],
+input[type="number"] {
+    padding: 5px;
+    margin: 5px;
+}
