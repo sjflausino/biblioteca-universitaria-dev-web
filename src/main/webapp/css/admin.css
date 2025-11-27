@@ -1,0 +1,160 @@
+
+.admin-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background-color: floralwhite;
+    padding: 25px;
+    border: 1px solid tan;
+}
+
+.admin-container h1 {
+    color: olive;
+    border-bottom: 2px solid tan;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.admin-container h3 {
+    color: olive;
+    margin-top: 25px;
+    margin-bottom: 10px;
+}
+
+.admin-container table {
+    background-color: white;
+}
+
+.admin-container table th {
+    background-color: beige;
+    color: olive;
+}
+
+.btn-editar {
+    background-color: gold;
+    color: black;
+    border: 1px solid goldenrod;
+    text-decoration: none;
+    padding: 5px 12px;
+    display: inline-block;
+    font-size: 13px;
+}
+
+.btn-editar:hover {
+    background-color: goldenrod;
+    text-decoration: none;
+}
+
+.btn-excluir-admin {
+    background-color: indianred;
+    color: black;
+    border: 1px solid darkred;
+    padding: 5px 12px;
+    font-size: 13px;
+}
+
+.btn-excluir-admin:hover {
+    background-color: brown;
+}
+
+.btn-adicionar {
+    background-color: steelblue;
+    color: black;
+    border: 1px solid navy;
+    padding: 8px 16px;
+}
+
+.btn-adicionar:hover {
+    background-color: navy;
+}
+
+.tipo-admin {
+    font-weight: bold;
+    color: steelblue;
+}
+
+.relatorio-secao {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid tan;
+}
+
+.relatorio-secao:last-child {
+    border-bottom: none;
+}
+
+.msg-vazia {
+    color: gray;
+    font-style: italic;
+    padding: 15px;
+}
+
+.texto-atraso {
+    color: red;
+    font-weight: bold;
+}
+
+.form-edicao {
+    max-width: 400px;
+    padding: 20px;
+    border: 1px solid tan;
+    background-color: white;
+}
+
+.form-edicao label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: olive;
+}
+
+.form-edicao input[type="text"],
+.form-edicao input[type="email"],
+.form-edicao input[type="password"],
+.form-edicao input[type="number"],
+.form-edicao select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid silver;
+}
+
+.form-edicao .aviso {
+    font-size: 12px;
+    color: gray;
+    margin-top: -10px;
+    margin-bottom: 15px;
+}
+
+.btn-salvar {
+    background-color: seagreen;
+    color: black;
+    border: 1px solid darkgreen;
+    padding: 10px 20px;
+    width: 100%;
+    cursor: pointer;
+}
+
+.btn-salvar:hover {
+    background-color: darkgreen;
+}
+
+.btn-cancelar {
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: gray;
+    color: black;
+    text-decoration: none;
+    border: 1px solid dimgray;
+}
+
+.btn-cancelar:hover {
+    background-color: dimgray;
+    text-decoration: none;
+}
+
+td form {
+    display: inline-block;
+    margin: 2px;
+}

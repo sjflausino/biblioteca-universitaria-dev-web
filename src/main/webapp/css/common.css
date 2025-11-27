@@ -1,4 +1,3 @@
-
 * {
     margin: 0;
     padding: 0;
@@ -6,30 +5,24 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: whitesmoke;
+    color: black;
     padding: 20px;
-    background-color: #f5f5f5;
+    padding-bottom: 50px;
 }
 
 h1, h2, h3 {
     margin-bottom: 15px;
-    color: #333;
+    color: black;
 }
 
-h1 {
-    font-size: 24px;
-}
-
-h2 {
-    font-size: 20px;
-}
-
-h3 {
-    font-size: 16px;
-}
+h1 { font-size: 24px; }
+h2 { font-size: 20px; }
+h3 { font-size: 16px; }
 
 a {
-    color: #007bff;
+    color: steelblue;
     text-decoration: none;
 }
 
@@ -37,16 +30,13 @@ a:hover {
     text-decoration: underline;
 }
 
-button, input[type="submit"] {
-    padding: 8px 15px;
-    border: 1px solid #ccc;
-    background-color: #fff;
-    cursor: pointer;
-    border-radius: 3px;
-}
 
-button:hover, input[type="submit"]:hover {
-    background-color: #f0f0f0;
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 25px;
+    border: 1px solid lightgray;
 }
 
 input[type="text"],
@@ -54,46 +44,168 @@ input[type="email"],
 input[type="password"],
 input[type="number"],
 select {
-    padding: 6px;
-    border: 1px solid #ccc;
-    border-radius: 3px;
+    padding: 8px;
+    border: 1px solid silver;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
 }
 
-table {
-    width: 100%;
-    margin-top: 15px;
-    background-color: white;
+input[type="submit"],
+button {
+    padding: 8px 16px;
+    border: 1px solid gray;
+    background-color: lightgray;
+    cursor: pointer;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+}
+
+input[type="submit"]:hover,
+button:hover {
+    background-color: silver;
 }
 
 fieldset {
     background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    border: 1px solid silver;
+    padding: 15px;
+    margin-bottom: 15px;
 }
 
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
+legend {
+    font-weight: bold;
+    padding: 0 5px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
     background-color: white;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+table th,
+table td {
+    padding: 10px;
+    border: 1px solid silver;
+    text-align: left;
+}
+
+table th {
+    background-color: lightgray;
+    font-weight: bold;
+}
+
+table tr:hover {
+    background-color: whitesmoke;
 }
 
 .msg-sucesso {
-    background-color: #d4edda;
-    color: #155724;
-    padding: 12px 20px;
-    border: 1px solid #c3e6cb;
-    border-radius: 5px;
+    background-color: lightgreen;
+    color: darkgreen;
+    padding: 10px 15px;
+    border: 1px solid green;
     margin-bottom: 15px;
 }
 
 .msg-erro {
-    background-color: #f8d7da;
-    color: #721c24;
-    padding: 12px 20px;
-    border: 1px solid #f5c6cb;
-    border-radius: 5px;
+    background-color: lightpink;
+    color: darkred;
+    padding: 10px 15px;
+    border: 1px solid red;
     margin-bottom: 15px;
+}
+
+.btn-principal {
+    background-color: steelblue;
+    color: black;
+    border: 1px solid navy;
+}
+
+.btn-principal:hover {
+    background-color: navy;
+}
+
+.btn-excluir {
+    background-color: indianred;
+    color: black;
+    border: 1px solid darkred;
+}
+
+.btn-excluir:hover {
+    background-color: darkred;
+}
+
+.btn-editar {
+    background-color: gold;
+    color: black;
+    border: 1px solid orange;
+    text-decoration: none;
+    padding: 5px 10px;
+    display: inline-block;
+}
+
+.btn-editar:hover {
+    background-color: orange;
+    text-decoration: none;
+}
+
+.link-voltar {
+    display: inline-block;
+    margin-bottom: 15px;
+    color: steelblue;
+}
+
+.link-voltar:hover {
+    text-decoration: underline;
+}
+
+.status-pendente {
+    color: orange;
+    font-weight: bold;
+}
+
+.status-indisponivel {
+    color: gray;
+    font-style: italic;
+}
+
+.multa-valor {
+    color: red;
+    font-weight: bold;
+}
+
+.tipo-admin {
+    font-weight: bold;
+    color: steelblue;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.mb-15 {
+    margin-bottom: 15px;
+}
+
+.mt-15 {
+    margin-top: 15px;
+}
+
+footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: darkblue;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    font-size: 12px;
 }
