@@ -39,5 +39,6 @@
             <input type="submit" value="Salvar Alterações">
         </form>
     </fieldset>
+    <jsp:include page="footer.jsp"/>
 </body>
 </html>

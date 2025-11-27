@@ -134,5 +134,6 @@
             </c:if>
         </tbody>
     </table>
+    <jsp:include page="footer.jsp"/>
 </body>
 </html>

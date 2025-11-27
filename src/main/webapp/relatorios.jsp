@@ -100,6 +100,6 @@
             </table>
         </c:otherwise>
     </c:choose>
-
+    <jsp:include page="footer.jsp"/>
 </body>
 </html>

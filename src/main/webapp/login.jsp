@@ -28,5 +28,6 @@
         <br>
         <a href="cadastro.jsp">Criar nova conta</a>
     </div>
+    <jsp:include page="footer.jsp"/>
 </body>
 </html>

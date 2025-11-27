@@ -30,5 +30,6 @@
             <li><a href="login?acao=logout">Sair</a></li>
         </ul>
     </nav>
+    <jsp:include page="footer.jsp"/>
 </body>
 </html>

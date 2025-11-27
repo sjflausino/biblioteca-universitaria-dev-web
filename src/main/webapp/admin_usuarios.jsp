@@ -70,5 +70,6 @@
             </c:forEach>
         </tbody>
     </table>
+    <jsp:include page="footer.jsp"/>
 </body>
 </html>

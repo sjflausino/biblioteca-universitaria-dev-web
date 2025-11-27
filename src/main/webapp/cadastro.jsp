@@ -52,3 +52,11 @@
             </c:choose>
 
             <input type="submit" value="Cadastrar">
+        </form>
+        <div class="links">
+            <a href="login.jsp">Já tenho uma conta</a>
+        </div>
+    </div>
+    <jsp:include page="footer.jsp"/>
+</body>
+</html>

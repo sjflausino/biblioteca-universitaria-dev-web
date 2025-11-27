@@ -46,5 +46,6 @@
             <a href="livros" class="btn-cancelar">Cancelar</a>
         </form>
     </div>
+    <jsp:include page="footer.jsp"/>
 </body>
 </html>
