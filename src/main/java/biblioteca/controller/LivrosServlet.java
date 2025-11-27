@@ -88,6 +88,8 @@ public class LivrosServlet extends HttpServlet {
                     stmt.setInt(1, Integer.parseInt(idStr));
                     stmt.executeUpdate();
                 }
+                response.sendRedirect("livros?msg=LivroExcluido");
+                return;
 
             } else if ("editar".equals(acao)) {
                 // --- Lógica de EDIÇÃO Inteligente ---
@@ -115,6 +117,8 @@ public class LivrosServlet extends HttpServlet {
                     stmt.setInt(7, Integer.parseInt(idStr));
                     stmt.executeUpdate();
                 }
+                response.sendRedirect("livros?msg=LivroEditado");
+                return;
 
             } else {
                 // --- Lógica de CADASTRO (Padrão) ---
@@ -135,6 +139,8 @@ public class LivrosServlet extends HttpServlet {
                     stmt.setInt(6, qtd);
                     stmt.executeUpdate();
                 }
+                response.sendRedirect("livros?msg=LivroCadastrado");
+                return;
             }
 
         } catch (SQLException e) {
@@ -149,7 +155,5 @@ public class LivrosServlet extends HttpServlet {
             // Outros erros
             throw new ServletException("Erro na operação: " + e.getMessage());
         }
-
-        response.sendRedirect("livros");
     }
 }

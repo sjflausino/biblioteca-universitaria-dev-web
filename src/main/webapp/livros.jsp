@@ -12,10 +12,29 @@
     <a href="dashboard.jsp">Voltar</a>
     <h2>Acervo</h2>
 
-    <%-- Tratamento de erros --%>
+    <%-- Tratamento de mensagens de SUCESSO --%>
+    <c:choose>
+        <c:when test="${param.msg == 'LivroExcluido'}">
+            <h3 class="msg-sucesso">Livro excluído com sucesso!</h3>
+        </c:when>
+        <c:when test="${param.msg == 'LivroEditado'}">
+            <h3 class="msg-sucesso">Livro atualizado com sucesso!</h3>
+        </c:when>
+        <c:when test="${param.msg == 'LivroCadastrado'}">
+            <h3 class="msg-sucesso">Livro cadastrado com sucesso!</h3>
+        </c:when>
+        <c:when test="${param.msg == 'EmprestimoSucesso'}">
+            <h3 class="msg-sucesso">Empréstimo realizado com sucesso! Devolução em 7 dias.</h3>
+        </c:when>
+    </c:choose>
+
+    <%-- Tratamento de mensagens de ERRO --%>
     <c:choose>
         <c:when test="${not empty erro}">
             <h3 class="msg-erro">${erro}</h3>
+        </c:when>
+        <c:when test="${param.erro == 'LivroComHistorico'}">
+            <h3 class="msg-erro">Não é possível excluir este livro pois ele possui empréstimos ativos ou histórico de empréstimos!</h3>
         </c:when>
         <c:when test="${param.erro == 'LivroJaComUsuario'}">
             <h3 class="msg-erro">Você já possui um exemplar deste livro pendente de devolução!</h3>
