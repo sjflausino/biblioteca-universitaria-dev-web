@@ -32,11 +32,7 @@
                 <label>Senha:</label>
                 <input type="password" name="senha" required>
 
-                <label>Tipo de Usuário:</label>
-                <select name="tipo">
-                    <option value="aluno" ${param.tipo == 'aluno' ? 'selected' : ''}>Aluno</option>
-                    <option value="admin" ${param.tipo == 'admin' ? 'selected' : ''}>Administrador</option>
-                </select>
+                <input type="hidden" name="tipo" value="aluno">
 
                 <input type="submit" value="Cadastrar">
             </form>
