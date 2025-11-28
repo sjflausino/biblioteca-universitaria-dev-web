@@ -1,5 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,12 +9,13 @@
     <link rel="stylesheet" href="css/auth.css">
 </head>
 <body>
+    
     <div class="auth-container">
         <div class="auth-box">
             <h2>Acesso à Biblioteca</h2>
             
             <c:if test="${not empty erro}">
-                <div class="msg-erro">${erro}</div>
+                <div class="msg-erro">Email ou Senha incorretos!</div>
             </c:if>
             <c:if test="${param.msg == 'cadastrado'}">
                 <div class="msg-sucesso">Usuário cadastrado com sucesso!</div>

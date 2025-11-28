@@ -1,5 +1,5 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <c:if test="${empty sessionScope.usuarioLogado}">
     <c:redirect url="login.jsp"/>
 </c:if>
@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="css/dashboard.css">
 </head>
 <body>
+    <jsp:include page="nav.jsp" />
     <div class="dashboard-container">
         <div class="dashboard-header">
             <h1>Bem-vindo, ${sessionScope.usuarioLogado.nome}!</h1>

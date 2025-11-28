@@ -1,5 +1,5 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 
 <c:if test="${empty sessionScope.usuarioLogado or sessionScope.usuarioLogado.tipo != 'admin'}">
@@ -14,10 +14,7 @@
     <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
-    <jsp:include page="nav.jsp">
-        <jsp:param name="secao" value="admin"/>
-        <jsp:param name="pagina" value="relatorios"/>
-    </jsp:include>
+    <jsp:include page="nav.jsp" />
     <div class="admin-container">
         <h1>Relatórios Administrativos</h1>
         <div class="relatorio-secao">

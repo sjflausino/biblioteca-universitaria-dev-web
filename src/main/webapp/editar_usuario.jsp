@@ -1,5 +1,5 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <c:if test="${empty sessionScope.usuarioLogado or sessionScope.usuarioLogado.tipo != 'admin'}">
     <c:redirect url="login.jsp"/>
@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
+    <jsp:include page="nav.jsp" />
     <div class="admin-container">
         <a href="usuario?acao=gerenciar" class="link-voltar">← Voltar para Lista</a>
         <h1>Editar Usuário</h1>

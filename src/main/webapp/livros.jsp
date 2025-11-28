@@ -1,5 +1,5 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <!DOCTYPE html>
 <html>
@@ -9,10 +9,7 @@
     <link rel="stylesheet" href="css/livros.css">
 </head>
 <body>
-    <jsp:include page="nav.jsp">
-        <jsp:param name="secao" value="usuario"/>
-        <jsp:param name="pagina" value="livros"/>
-    </jsp:include>
+    <jsp:include page="nav.jsp" />
     <div class="container">
         <h2>Acervo de Livros</h2>
 

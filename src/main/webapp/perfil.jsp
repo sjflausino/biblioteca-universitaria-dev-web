@@ -1,5 +1,5 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <c:if test="${empty sessionScope.usuarioLogado}">
     <c:redirect url="login.jsp"/>
@@ -12,10 +12,7 @@
     <link rel="stylesheet" href="css/common.css">
 </head>
 <body>
-    <jsp:include page="nav.jsp">
-        <jsp:param name="secao" value="usuario"/>
-        <jsp:param name="pagina" value="perfil"/>
-    </jsp:include>
+    <jsp:include page="nav.jsp" />
     <div class="container">
         <h1>Editar Meus Dados</h1>
 
