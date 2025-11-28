@@ -9,8 +9,11 @@
     <link rel="stylesheet" href="css/livros.css">
 </head>
 <body>
+    <jsp:include page="nav.jsp">
+        <jsp:param name="secao" value="usuario"/>
+        <jsp:param name="pagina" value="livros"/>
+    </jsp:include>
     <div class="container">
-        <a href="dashboard.jsp" class="link-voltar">← Voltar ao Painel</a>
         <h2>Acervo de Livros</h2>
 
         <c:choose>

@@ -14,8 +14,11 @@
     <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
+    <jsp:include page="nav.jsp">
+        <jsp:param name="secao" value="admin"/>
+        <jsp:param name="pagina" value="relatorios"/>
+    </jsp:include>
     <div class="admin-container">
-        <a href="dashboard.jsp" class="link-voltar">← Voltar ao Painel</a>
         <h1>Relatórios Administrativos</h1>
         <div class="relatorio-secao">
             <h3>Livros Mais Populares</h3>

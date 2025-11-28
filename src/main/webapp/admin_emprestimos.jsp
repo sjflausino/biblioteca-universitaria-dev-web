@@ -14,8 +14,11 @@
     <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
+    <jsp:include page="nav.jsp">
+        <jsp:param name="secao" value="admin"/>
+        <jsp:param name="pagina" value="emprestimos"/>
+    </jsp:include>
     <div class="admin-container">
-        <a href="dashboard.jsp" class="link-voltar">← Voltar ao Painel</a>
         <h1>Gerenciar Empréstimos</h1>
 
         <c:if test="${param.msg == 'DevolucaoSucesso'}">
