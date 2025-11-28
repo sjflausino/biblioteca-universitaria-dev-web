@@ -12,8 +12,11 @@
     <link rel="stylesheet" href="css/common.css">
 </head>
 <body>
+    <jsp:include page="nav.jsp">
+        <jsp:param name="secao" value="usuario"/>
+        <jsp:param name="pagina" value="perfil"/>
+    </jsp:include>
     <div class="container">
-        <a href="dashboard.jsp" class="link-voltar">← Voltar ao Painel</a>
         <h1>Editar Meus Dados</h1>
 
         <c:if test="${not empty msg}">

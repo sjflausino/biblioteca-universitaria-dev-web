@@ -10,8 +10,11 @@
     <link rel="stylesheet" href="css/historico.css">
 </head>
 <body>
+    <jsp:include page="nav.jsp">
+        <jsp:param name="secao" value="usuario"/>
+        <jsp:param name="pagina" value="historico"/>
+    </jsp:include>
     <div class="container">
-        <a href="dashboard.jsp" class="link-voltar">← Voltar ao Painel</a>
         <h2>Meus Empréstimos</h2>
         
         <c:if test="${param.msg == 'DevolucaoSucesso'}">

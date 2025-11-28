@@ -13,8 +13,11 @@
     <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
+    <jsp:include page="nav.jsp">
+        <jsp:param name="secao" value="admin"/>
+        <jsp:param name="pagina" value="usuarios"/>
+    </jsp:include>
     <div class="admin-container">
-        <a href="dashboard.jsp" class="link-voltar">← Voltar ao Painel</a>
         <h1>Gerenciar Usuários</h1>
 
         <c:if test="${param.msg == 'ExcluidoSucesso'}">

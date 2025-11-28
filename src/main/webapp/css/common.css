@@ -198,6 +198,28 @@ table tr:hover {
     margin-top: 15px;
 }
 
+.navbar {
+    background-color: lightgray;
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid silver;
+}
+
+.navbar a {
+    color: black;
+    text-decoration: none;
+    margin-right: 15px;
+}
+
+.navbar a:hover {
+    text-decoration: underline;
+}
+
+.nav-separador {
+    color: gray;
+    margin-right: 15px;
+}
+
 footer {
     position: fixed;
     bottom: 0;
